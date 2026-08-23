@@ -153,4 +153,4 @@ Las lineas base se implementan mediante tags de Git con el formato `LB-<numero>-
 
 ## Mantenimiento de esta guia
 
-El contenido de este README reemplaza la documentacion SCM anteriormente separada. Cualquier cambio en la estructura, las reglas de nombrado, los Items de Configuracion o las lineas base debe actualizarse aqui y registrarse mediante Git.
+Cualquier cambio en la estructura, las reglas de nombrado, los Items de Configuracion o las lineas base debe actualizarse aqui y registrarse mediante Git.
