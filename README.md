@@ -83,7 +83,7 @@ ISW_G7_4K2_2026/
 
 Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este README y el TP5 evalua el uso y evolucion de este repositorio.
 
-> [!NOTA]
+> [!NOTE]
 > Los directorios y subdirectorios utilizan prefijos numericos de dos digitos. Solo se crea un subdirectorio cuando sea necesario agrupar varios archivos relacionados. 
 >|- indica un elemento que continúa con más elementos debajo.
 > `- indica el último elemento de ese nivel.
