@@ -1,6 +1,6 @@
 # Gestion de Configuracion del Software - ISW G7 4K2 2026
 
-> **Fecha de creacion:** 23/08/2026 | **Ultima actualizacion:** 23/08/2026
+> **Fecha de creacion:** 23/08/2026 | **Ultima actualizacion:** 24/08/2026
 >
 > **Materia:** Ingenieria y Calidad de Software
 >
@@ -56,6 +56,14 @@ ISW_G7_4K2_2026/
 |- README.md
 |- 00-reglas-materia/
 |- 01-material-teorico/
+|  |- 00-presentaciones-clases/
+|  |- 01-material-bibliografico/
+|  |  |- 00-scm-gestion-configuracion/
+|  |  |- 01-testing-software/
+|  |  |- 02-tdd-test-driven-development/
+|  |  |- 03-agilismo/
+|  |  |  `- 04-lean-kanban/
+|  `- 02-notas-clase/
 |- 02-trabajos-practicos/
 |  |- 01-TP01-Requerimientos-Mis-Gastos/
 |  |- 02-TP02-Requerimientos-EcoHarmony/
@@ -91,10 +99,15 @@ Los nombres de archivos no deben incluir espacios, acentos, caracteres especiale
 | Reglas de la materia | `REG-<descripcion>.<extension>` | `00-reglas-materia/` |
 | Material teorico | `MAT-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
 | Material teorico por unidad | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
+| Presentaciones de clase | `MAT-U<numero>-<tema>-Presentacion.<extension>` | `01-material-teorico/00-presentaciones-clases/` |
+| Material bibliografico | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/01-material-bibliografico/` |
+| Notas de clase | `MAT-U<numero>-<tema>-Notas-Clase.<extension>` | `01-material-teorico/02-notas-clase/` |
 | Producto de trabajo practico | `TP<numero>-<tipoCI>-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/` |
 | Trabajo de investigacion grupal | `INV-<descripcion>.<extension>` | `03-trabajo-investigacion-grupal/` |
 
-Ejemplos: `REG-Criterios-Evaluacion.pdf`, `MAT-U03-SCM-Gestion-Configuracion.pdf` y `TP09-TST-EcoHarmony-CasosPrueba.xlsx`.
+Ejemplos: `REG-Criterios-Evaluacion.pdf`, `MAT-U03-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Notas-Clase.md` y `TP09-TST-EcoHarmony-CasosPrueba.xlsx`.
+
+Las notas de clase se identifican mediante la unidad y el tema en el nombre del archivo, sin crear un subdirectorio por cada unidad. Si hubiera varias notas para una misma unidad y tema, puede agregarse el numero de clase: `MAT-U03-C02-SCM-Notas-Clase.md`.
 
 ## Items de configuracion
 
