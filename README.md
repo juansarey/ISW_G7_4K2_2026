@@ -47,11 +47,6 @@ El repositorio contempla los siguientes elementos:
 
 ---
 
-## Organizacion del repositorio
-
-La estructura actual del repositorio es la siguiente:
-
-```text
 ## Organización del Repositorio
 
 A continuación se describe la estructura de directorios del repositorio:
@@ -88,13 +83,7 @@ Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este RE
 
 Los nombres de directorios siguen el formato `<numero>-<descripcion>`. Para los trabajos practicos se utiliza `<numero>-TP<numero>-<tema>-<dominio>`.
 
-Los nombres de archivos no deben incluir espacios, acentos, caracteres especiales ni numeros de version. Deben utilizar guiones medios como separadores y conservarse estables mientras representen el mismo Item de Configuracion.
-
----
-
 ### 00-reglas-materia/
-
-Contiene reglamentos, pautas, criterios y demás documentación proporcionada por la cátedra.
 
 | Ítem de configuración | Formato del nombre | Ubicación |
 | --- | --- | --- |
@@ -102,11 +91,7 @@ Contiene reglamentos, pautas, criterios y demás documentación proporcionada po
 
 **Ejemplo:**`REG-Criterios-Evaluacion.pdf`
 
----
-
 ### 01-material-teorico/
-
-Contiene el material utilizado como referencia durante el cursado.
 
 | Ítem de configuración | Formato del nombre | Ubicación |
 | --- | --- | --- |
@@ -118,13 +103,10 @@ Contiene el material utilizado como referencia durante el cursado.
 
 **Ejemplos:**`MAT-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Presentacion.pdf`, `MAT-U03-SCM-Notas-Clase.md`
 
-Las notas de clase se identifican mediante la unidad y el tema en el nombre del archivo, sin crear un subdirectorio por cada unidad. Si hubiera varias notas para una misma unidad y tema, puede agregarse el numero de clase: `MAT-U03-C02-SCM-Notas-Clase.md`.
-
----
+> [!NOTE]
+>Las notas de clase se identifican mediante la unidad y el tema en el nombre del archivo, sin crear un subdirectorio por cada unidad. Si hubiera varias notas para una misma unidad y tema, puede agregarse el numero de clase: `MAT-U03-C02-SCM-Notas-Clase.md`.
 
 ### 02-trabajos-practicos/
-
-Contiene los productos generados para los diferentes trabajos prácticos de la materia.
 
 | Ítem de configuración | Formato del nombre | Ubicación |
 | --- | --- | --- |
@@ -133,15 +115,9 @@ Contiene los productos generados para los diferentes trabajos prácticos de la m
 **Ejemplos:**`TP01-REQ-Mis-Gastos-Especificacion.pdf`, `TP06-SRC-EcoHarmony-Codigo.py`, `TP09-TST-EcoHarmony-Casos-Prueba.xlsx`
 
 > [!NOTE]
-> Los archivos correspondientes a un mismo trabajo práctico se almacenan dentro del directorio del TP correspondiente.
->
-> Solo se crean subdirectorios adicionales cuando sea necesario agrupar varios archivos relacionados.
-
----
+> Los archivos correspondientes a un mismo trabajo práctico se almacenan dentro del directorio del TP correspondiente. Solo se crean subdirectorios adicionales cuando sea necesario agrupar varios archivos relacionados.
 
 ### 03-trabajo-investigacion-grupal/
-
-Contiene los productos correspondientes al trabajo de investigación grupal.
 
 | Ítem de configuración | Formato del nombre | Ubicación |
 | --- | --- | --- |
