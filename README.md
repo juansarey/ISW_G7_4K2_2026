@@ -52,41 +52,34 @@ El repositorio contempla los siguientes elementos:
 La estructura actual del repositorio es la siguiente:
 
 ```text
+## Organización del Repositorio
+
+A continuación se describe la estructura de directorios del repositorio:
+
+```text
 ISW_G7_4K2_2026/
-|- README.md
-|- 00-reglas-materia/
-|- 01-material-teorico/
-|  |- 00-presentaciones-clases/
-|  |- 01-material-bibliografico/
-|  |  |- 00-scm-gestion-configuracion/
-|  |  |- 01-testing-software/
-|  |  |- 02-tdd-test-driven-development/
-|  |  |- 03-agilismo/
-|  |  |  `- 04-lean-kanban/
-|  `- 02-notas-clase/
-|- 02-trabajos-practicos/
-|  |- 01-TP01-Requerimientos-Mis-Gastos/
-|  |- 02-TP02-Requerimientos-EcoHarmony/
-|  |- 03-TP03-Requerimientos-Recircula/
-|  |- 06-TP06-TDD-EcoHarmony/
-|  |  |- 00-codigo-fuente/
-|  |  `- 01-pruebas-automatizadas/
-|  |- 07-TP07-Scrum-Parque-Diversiones/
-|  |- 08-TP08-Testing-Taxi-Mobile/
-|  |- 09-TP09-Testing-EcoHarmony/
-|  |- 10-TP10-Kanban/
-|  |- 11-TP11-Scrum-Retrospectiva/
-|  |- 12-TP12-Design-Thinking/
-|  `- 13-TP13-Scrum-Release-Planning/
-`- 03-trabajo-investigacion-grupal/
+├── README.md
+├── 00-reglas-materia/
+├── 01-material-teorico/
+│   ├── 00-presentaciones-clases/
+│   ├── 01-material-bibliografico/
+│   │   └── <NN>-<TEMA>/
+│   └── 02-notas-clase/
+├── 02-trabajos-practicos/
+│   └── <NN>-TP<N>-<NOMBRE_TP>/
+└── 03-trabajo-investigacion-grupal/
 ```
 
 Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este README y el TP5 evalua el uso y evolucion de este repositorio.
 
 > [!NOTE]
-> Los directorios y subdirectorios utilizan prefijos numericos de dos digitos. Solo se crea un subdirectorio cuando sea necesario agrupar varios archivos relacionados. 
->|- indica un elemento que continúa con más elementos debajo.
-> `- indica el último elemento de ese nivel.
+> `<N>` representa el número secuencial del trabajo práctico (ejemplo: `01` ).
+>
+> `<NN>` representa el número secuencial de orden de dos dígitos (ejemplo: `00` , `01` ).
+>
+> `<TEMA>` representa el nombre del tema o material bibliográfico (ejemplo: `testing-software` ).
+>
+> `<NOMBRE_TP>` representa el nombre descriptivo asignado al trabajo práctico (ejemplo: `Requerimientos-EcoHarmony` ).
 
 
 ---
@@ -97,20 +90,66 @@ Los nombres de directorios siguen el formato `<numero>-<descripcion>`. Para los 
 
 Los nombres de archivos no deben incluir espacios, acentos, caracteres especiales ni numeros de version. Deben utilizar guiones medios como separadores y conservarse estables mientras representen el mismo Item de Configuracion.
 
-| Item de configuracion | Formato del nombre | Ubicacion |
+---
+
+### 00-reglas-materia/
+
+Contiene reglamentos, pautas, criterios y demás documentación proporcionada por la cátedra.
+
+| Ítem de configuración | Formato del nombre | Ubicación |
 | --- | --- | --- |
 | Reglas de la materia | `REG-<descripcion>.<extension>` | `00-reglas-materia/` |
-| Material teorico | `MAT-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
-| Material teorico por unidad | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
-| Presentaciones de clase | `MAT-U<numero>-<tema>-Presentacion.<extension>` | `01-material-teorico/00-presentaciones-clases/` |
-| Material bibliografico | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/01-material-bibliografico/` |
-| Notas de clase | `MAT-U<numero>-<tema>-Notas-Clase.<extension>` | `01-material-teorico/02-notas-clase/` |
-| Producto de trabajo practico | `TP<numero>-<tipoCI>-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/` |
-| Trabajo de investigacion grupal | `INV-<descripcion>.<extension>` | `03-trabajo-investigacion-grupal/` |
 
-Ejemplos: `REG-Criterios-Evaluacion.pdf`, `MAT-U03-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Notas-Clase.md` y `TP09-TST-EcoHarmony-CasosPrueba.xlsx`.
+**Ejemplo:**`REG-Criterios-Evaluacion.pdf`
+
+---
+
+### 01-material-teorico/
+
+Contiene el material utilizado como referencia durante el cursado.
+
+| Ítem de configuración | Formato del nombre | Ubicación |
+| --- | --- | --- |
+| Material teórico general | `MAT-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
+| Material teórico por unidad | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/` |
+| Presentaciones de clase | `MAT-U<numero>-<tema>-Presentacion.<extension>` | `01-material-teorico/00-presentaciones-clases/` |
+| Material bibliográfico | `MAT-U<numero>-<tema>-<descripcion>.<extension>` | `01-material-teorico/01-material-bibliografico/` |
+| Notas de clase | `MAT-U<numero>-<tema>-Notas-Clase.<extension>` | `01-material-teorico/02-notas-clase/` |
+
+**Ejemplos:**`MAT-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Gestion-Configuracion.pdf`, `MAT-U03-SCM-Presentacion.pdf`, `MAT-U03-SCM-Notas-Clase.md`
 
 Las notas de clase se identifican mediante la unidad y el tema en el nombre del archivo, sin crear un subdirectorio por cada unidad. Si hubiera varias notas para una misma unidad y tema, puede agregarse el numero de clase: `MAT-U03-C02-SCM-Notas-Clase.md`.
+
+---
+
+### 02-trabajos-practicos/
+
+Contiene los productos generados para los diferentes trabajos prácticos de la materia.
+
+| Ítem de configuración | Formato del nombre | Ubicación |
+| --- | --- | --- |
+| Producto de trabajo práctico | `TP<numero>-<tipoCI>-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/` |
+
+**Ejemplos:**`TP01-REQ-Mis-Gastos-Especificacion.pdf`, `TP06-SRC-EcoHarmony-Codigo.py`, `TP09-TST-EcoHarmony-Casos-Prueba.xlsx`
+
+> [!NOTE]
+> Los archivos correspondientes a un mismo trabajo práctico se almacenan dentro del directorio del TP correspondiente.
+>
+> Solo se crean subdirectorios adicionales cuando sea necesario agrupar varios archivos relacionados.
+
+---
+
+### 03-trabajo-investigacion-grupal/
+
+Contiene los productos correspondientes al trabajo de investigación grupal.
+
+| Ítem de configuración | Formato del nombre | Ubicación |
+| --- | --- | --- |
+| Trabajo de investigación grupal | `INV-<descripcion>.<extension>` | `03-trabajo-investigacion-grupal/` |
+
+**Ejemplos:**`INV-Informe-Final.pdf`, `INV-Presentacion-Final.pptx`
+
+---
 
 ## Items de configuracion
 
@@ -133,40 +172,29 @@ Se considera Item de Configuracion (CI) a todo elemento relevante para la materi
 
 ---
 
-## Convencion de mensajes de commit
-
-La documentacion SCM vigente define que Git administra el historial y las versiones de los Items de Configuracion. La convencion especifica para los mensajes de commit aun no fue establecida; hasta su definicion, los mensajes deben describir de forma breve y clara el cambio realizado.
-
----
-
 ## Glosario de abreviaturas
+
+El glosario de abreviaturas define las siglas utilizadas en el documento para facilitar su comprensión y mantener un uso uniforme de los términos.
 
 | Abreviatura | Significado |
 | --- | --- |
-| `REG` | Reglas de la materia |
-| `MAT` | Material teorico |
-| `REQ` | Requerimientos |
-| `SRC` | Codigo fuente |
-| `AUT` | Pruebas automatizadas |
-| `DES` | Documentacion de diseno |
-| `TST` | Documentacion de testing |
-| `SCR` | Artefactos Scrum |
-| `RET` | Retrospectiva |
-| `KAN` | Artefactos Kanban |
-| `DT` | Design Thinking |
-| `INV` | Trabajo de investigacion grupal |
-| `TP` | Trabajo Practico |
-| `CI` | Item de Configuracion |
-| `LB` | Linea base |
-
-## Criterios de linea base
-
-Una linea base representa un estado estable e identificado de uno o mas Items de Configuracion. Se crea al alcanzar un hito academico relevante, siempre que los elementos asociados esten completos, revisados por el grupo, correctamente ubicados y respeten las reglas de nombrado.
-
-Las lineas base se implementan mediante tags de Git con el formato `LB-<numero>-<descripcion>`, donde el numero es correlativo de dos digitos. La primera linea base prevista es `LB-01-Configuracion-Inicial`, una vez aprobadas la estructura inicial, la documentacion SCM y los CIs disponibles.
+| `SCM` | Gestión de Configuración del Software |
+| `CI` | Ítem de Configuración |
+| `TP` | Trabajo Práctico |
+| `LB` | Línea Base |
 
 ---
 
-## Mantenimiento de esta guia
+## Convencion de mensajes de commit
 
-Cualquier cambio en la estructura, las reglas de nombrado, los Items de Configuracion o las lineas base debe actualizarse aqui y registrarse mediante Git.
+La documentacion SCM vigente define que Git administra el historial y las versiones de los Items de Configuracion.
+
+`<Legajo>: <descripcion del cambio>`
+
+---
+
+## Criterios de linea base
+
+Se establecerá una línea base luego de la corrección de cada trabajo práctico evaluable. En ese momento, los ítems de configuración asociados al trabajo práctico deberán encontrarse completos, revisados y estables. Se adopta este criterio porque la corrección posterior a la evaluación representa un estado validado del trabajo y constituye un hito significativo en la evolución del repositorio.
+
+Las lineas base se implementan mediante tags de Git con el formato `LB-<numero>-<descripcion>`, donde el numero es correlativo de dos digitos. La primera linea base prevista es `LB-01-Configuracion-Inicial`, una vez aprobadas la estructura inicial, la documentacion SCM y los CIs disponibles.
