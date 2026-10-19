@@ -14,6 +14,7 @@ from ecoharmony.modelos import (
     EstadoCompra,
     EstadoCorreo,
     EstadoPago,
+    FormaPago,
     ResultadoCompra,
     SolicitudCompra,
 )
@@ -36,7 +37,40 @@ class ServicioCompras:
         self._repositorio = repositorio
 
     def comprar(self, solicitud: SolicitudCompra) -> ResultadoCompra:
-        compra = Compra(
+        if solicitud.forma_pago == FormaPago.TARJETA:
+            return self._iniciar_pago_con_tarjeta(solicitud)
+        return self._confirmar_en_efectivo(solicitud)
+
+    def _confirmar_en_efectivo(self, solicitud: SolicitudCompra) -> ResultadoCompra:
+        """A02: la compra queda confirmada y el pago se hace en boletería."""
+        compra = self._crear_compra(
+            solicitud, EstadoCompra.CONFIRMADA, EstadoPago.PENDIENTE_BOLETERIA
+        )
+        self._repositorio.guardar(compra)
+        self._servicio_correo.enviar_confirmacion(compra)
+        compra.estado_correo = EstadoCorreo.ENVIADO
+        return ResultadoCompra(aceptada=True, compra=compra)
+
+    def _iniciar_pago_con_tarjeta(self, solicitud: SolicitudCompra) -> ResultadoCompra:
+        """A02 y DD05: abrir la pasarela no acredita el pago; todo queda pendiente."""
+        compra = self._crear_compra(
+            solicitud, EstadoCompra.PENDIENTE, EstadoPago.PENDIENTE_PASARELA
+        )
+        self._repositorio.guardar(compra)
+        url_redireccion = self._servicio_pago.iniciar_pago_tarjeta(
+            compra.id_compra, compra.total
+        )
+        return ResultadoCompra(
+            aceptada=True, compra=compra, url_redireccion=url_redireccion
+        )
+
+    def _crear_compra(
+        self,
+        solicitud: SolicitudCompra,
+        estado_compra: EstadoCompra,
+        estado_pago: EstadoPago,
+    ) -> Compra:
+        return Compra(
             id_compra=uuid4().hex,
             usuario=solicitud.usuario,
             fecha_visita=solicitud.fecha_visita,
@@ -45,10 +79,6 @@ class ServicioCompras:
             tipo_pase=solicitud.tipo_pase,
             forma_pago=solicitud.forma_pago,
             total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
-            estado_compra=EstadoCompra.CONFIRMADA,
-            estado_pago=EstadoPago.PENDIENTE_BOLETERIA,
+            estado_compra=estado_compra,
+            estado_pago=estado_pago,
         )
-        self._repositorio.guardar(compra)
-        self._servicio_correo.enviar_confirmacion(compra)
-        compra.estado_correo = EstadoCorreo.ENVIADO
-        return ResultadoCompra(aceptada=True, compra=compra)

@@ -23,7 +23,7 @@ todavía no tiene tests.
 | Caso | Criterios | Archivo | Tests / variantes | Estado |
 |---|---|---|---|---|
 | C01 | CA01, CA06, CA08, CA09 | `tests/test_c01_compra_valida_efectivo.py` | `test_c01_confirma_compra_en_efectivo_con_pago_pendiente_en_boleteria`, `test_c01_conserva_cantidad_y_fecha_validadas`, `test_c01_registra_la_compra_confirmada`, `test_c01_solicita_un_correo_al_visitante` | Terminado |
-| C02 | CA01, CA04, CA06 | `tests/test_c02_compra_valida_tarjeta.py` | — | Pendiente |
+| C02 | CA01, CA04, CA06 | `tests/test_c02_compra_valida_tarjeta.py` | `test_c02_acepta_y_abre_la_pasarela_de_pago`, `test_c02_mantiene_compra_y_pago_pendientes_hasta_la_aprobacion` | Terminado |
 | C03 | CA02, CA05 | `tests/test_c03_fecha_actual.py` | — | Pendiente |
 | C04 | CA02, CA05 | `tests/test_c04_fecha_futura.py` | — | Pendiente |
 | C05 | CA07, A03 | `tests/test_c05_una_entrada.py` | — | Pendiente |
