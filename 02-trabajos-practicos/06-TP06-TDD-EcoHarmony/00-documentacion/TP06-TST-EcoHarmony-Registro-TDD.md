@@ -3,8 +3,8 @@
 Evidencia real de cada ciclo Red → Green → Refactor (regla 8). Copiar la salida
 observada de pytest; no reconstruir ejecuciones.
 
-Entorno de las ejecuciones registradas: Python 3.13.7, pytest 9.1.1, Ruff 0.17.1,
-Windows 11.
+Entorno de las ejecuciones históricas de C01 y C02: Python 3.13.7, pytest 9.1.1,
+Ruff 0.17.1, Windows 11. El entorno de C03 y C04 se detalla en su sección.
 
 ## Estructura inicial
 
@@ -131,5 +131,69 @@ All checks passed!
 
 ## Ajuste de la estructura
 
-Se quitaron los archivos de especificación `test_c03`–`test_c28`: la suite contiene
-solo C01 y C02. Cada responsable crea el archivo de su caso al comenzarlo.
+Se quitaron los archivos de especificación `test_c03`–`test_c28`: en ese momento,
+la suite contenía solo C01 y C02. Cada responsable crea el archivo de su caso al
+comenzarlo.
+
+## C03 y C04 — Entorno de verificación (19/10/2026)
+
+Estas ejecuciones usan Windows, Python 3.13.5, pytest 9.1.1 y Ruff 0.17.1.
+Se creó `.venv/` y se instalaron las versiones de `requirements.txt` sin cambiar
+las dependencias del proyecto. Los comandos se ejecutaron desde
+`01-implementacion/` con `.venv\Scripts\python.exe`.
+
+**Confirmado:** el entregable (página 7) requiere aceptar D0 abierto para C03 y
+D0 + 1 abierto para C04, manteniendo válida la solicitud restante. Se añadieron
+dos variantes por caso, una por forma de pago, con las fixtures compartidas.
+
+## C03 — Fecha actual con parque abierto
+
+**Primera ejecución (Green directo).** Se creó `tests/test_c03_fecha_actual.py`
+para comprobar aceptación de D0 y conservación de la fecha en el resultado y en
+el repositorio. Ambas variantes pasaron sin modificar código de producción:
+
+```text
+$ .venv\Scripts\python.exe -m pytest -k c03 -v --tb=short
+tests/test_c03_fecha_actual.py::test_c03_acepta_fecha_actual_con_parque_abierto[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c03_fecha_actual.py::test_c03_acepta_fecha_actual_con_parque_abierto[FormaPago.TARJETA] PASSED [100%]
+======================= 2 passed, 8 deselected in 0.09s =======================
+```
+
+**Código y refactorización.** `ServicioCompras.comprar` ya acepta esta solicitud;
+`_crear_compra` conserva `fecha_visita` y ambos flujos registran la compra.
+No hizo falta cambiar esos métodos ni refactorizar. Se registra el comportamiento
+existente, conforme a la regla 8; no hubo una fase Red.
+
+## C04 — Fecha futura con parque abierto
+
+**Primera ejecución (Green directo).** Se creó `tests/test_c04_fecha_futura.py`
+para comprobar aceptación de D0 + 1 abierto y conservación de la fecha en el
+resultado y en el repositorio. Ambas variantes pasaron sin modificar producción:
+
+```text
+$ .venv\Scripts\python.exe -m pytest -k c04 -v --tb=short
+tests/test_c04_fecha_futura.py::test_c04_acepta_fecha_futura_con_parque_abierto[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c04_fecha_futura.py::test_c04_acepta_fecha_futura_con_parque_abierto[FormaPago.TARJETA] PASSED [100%]
+======================= 2 passed, 8 deselected in 0.05s =======================
+```
+
+**Código y refactorización.** El flujo compartido de C01 y C02 ya conserva la
+fecha futura solicitada. Se reutilizó sin cambios. Se registra Green directo,
+sin provocar un fallo artificial ni introducir otra implementación.
+
+## Verificación de C01–C04
+
+```text
+$ .venv\Scripts\python.exe -m pytest -q
+..........                                                               [100%]
+10 passed in 0.03s
+$ .venv\Scripts\python.exe -m ruff check .
+All checks passed!
+$ .venv\Scripts\python.exe -m ruff format --check .
+20 files already formatted
+```
+
+Los casos C03 y C04 comprueban aceptación bajo las precondiciones de apertura
+preparadas. Los rechazos por fecha pasada, parque cerrado y fecha ausente siguen
+pendientes en C10, C11 y C15. No se ejecutaron pruebas de navegador: el cambio
+agrega pruebas de la lógica compartida y documentación.

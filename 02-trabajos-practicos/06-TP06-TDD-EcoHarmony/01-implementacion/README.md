@@ -14,7 +14,9 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | Fixtures (`tests/conftest.py`) y dobles (`tests/dobles.py`) | Listo |
 | C01 — compra válida en efectivo | Terminado (4 tests) |
 | C02 — compra válida con tarjeta | Terminado (2 tests) |
-| C03–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C03 — fecha actual con parque abierto | Terminado (2 variantes: efectivo y tarjeta) |
+| C04 — fecha futura con parque abierto | Terminado (2 variantes: efectivo y tarjeta) |
+| C05–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
 Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la interfaz
@@ -22,6 +24,12 @@ Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la int
 entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
 escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se
 completen esos casos. Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
+
+C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
+la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
+primera ejecución con la lógica existente; la evidencia está en
+`../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
+10 pruebas. Los rechazos temporales y de apertura (C10 y C11) siguen pendientes.
 
 ## Instalación
 
@@ -63,6 +71,8 @@ tests/
   dobles.py             # Dobles de pago, correo, reloj, calendario y repositorio
   test_c01_*.py         # C01 (un archivo por caso)
   test_c02_*.py         # C02
+  test_c03_fecha_actual.py # C03: fecha actual, efectivo y tarjeta
+  test_c04_fecha_futura.py # C04: fecha futura, efectivo y tarjeta
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)

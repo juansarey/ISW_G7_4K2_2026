@@ -24,8 +24,8 @@ especificación está en el entregable (páginas 7 a 9).
 |---|---|---|---|---|
 | C01 | CA01, CA06, CA08, CA09 | `tests/test_c01_compra_valida_efectivo.py` | `test_c01_confirma_compra_en_efectivo_con_pago_pendiente_en_boleteria`, `test_c01_conserva_cantidad_y_fecha_validadas`, `test_c01_registra_la_compra_confirmada`, `test_c01_solicita_un_correo_al_visitante` | Terminado |
 | C02 | CA01, CA04, CA06 | `tests/test_c02_compra_valida_tarjeta.py` | `test_c02_acepta_y_abre_la_pasarela_de_pago`, `test_c02_mantiene_compra_y_pago_pendientes_hasta_la_aprobacion` | Terminado |
-| C03 | CA02, CA05 | — | — | Pendiente |
-| C04 | CA02, CA05 | — | — | Pendiente |
+| C03 | CA02, CA05 | `tests/test_c03_fecha_actual.py` | `test_c03_acepta_fecha_actual_con_parque_abierto`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C04 | CA02, CA05 | `tests/test_c04_fecha_futura.py` | `test_c04_acepta_fecha_futura_con_parque_abierto`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C05 | CA07, A03 | — | — | Pendiente |
 | C06 | CA07, A03 | — | — | Pendiente |
 | C07 | CA07, A03 | — | — | Pendiente |
@@ -50,3 +50,9 @@ especificación está en el entregable (páginas 7 a 9).
 | C26 | DG02 | — | — | Pendiente |
 | C27 | DG03 | — | — | Pendiente |
 | C28 | DG04 | — | — | Pendiente |
+
+C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
+calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
+resultado y en la compra registrada. Ambas variantes de pago reutilizan
+`ServicioCompras` y las fixtures comunes. Los rechazos por fecha pasada (C10),
+parque cerrado (C11) y fecha ausente (C15) siguen pendientes.

@@ -8,8 +8,8 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 |---|---|---|---|---|
 | C01 | Compra válida en efectivo | Bongiorno (98495) | — | Terminado |
 | C02 | Compra válida con tarjeta | Bongiorno (98495) | C01 | Terminado |
-| C03 | Fecha actual | Por asignar | C01 | Pendiente |
-| C04 | Fecha futura | Por asignar | C01 | Pendiente |
+| C03 | Fecha actual | Thomas Salomon Wendler (400501) | C01 | Terminado |
+| C04 | Fecha futura | Thomas Salomon Wendler (400501) | C01 | Terminado |
 | C05 | Una entrada | Por asignar | C01 | Pendiente |
 | C06 | Nueve entradas | Por asignar | C01 | Pendiente |
 | C07 | Diez entradas | Por asignar | C01 | Pendiente |
