@@ -62,11 +62,18 @@ ISW_G7_4K2_2026/
 │   └── 02-notas-clase/
 ├── 02-trabajos-practicos/
 │   ├── ENU-TP-Evaluables-<anio>-<cuatrimestre>C.pdf
-│   └── <NN>-TP<N>-<NOMBRE_TP>/
+│   ├── <NN>-TP<N>-<NOMBRE_TP>/
+│   └── 06-TP06-TDD-EcoHarmony/
+│       ├── 00-documentacion/
+│       │   ├── TP06-DES-EcoHarmony-Diseno-y-Pruebas.pdf
+│       │   └── TP06-DES-EcoHarmony-Reglas-Codificacion.md
+│       └── 01-implementacion/
 └── 03-trabajo-investigacion-grupal/
 ```
 
 Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este README y el TP5 evalúa el uso y evolución de este repositorio.
+
+En el TP6, `00-documentacion/` reúne el entregable de diseño y pruebas, las reglas de codificación y los demás documentos del trabajo. `01-implementacion/` se reserva para el código fuente, las pruebas automatizadas y su configuración; inicialmente se conserva en Git mediante un archivo `.gitkeep`.
 
 > [!NOTE]
 > `<N>` representa el número secuencial del trabajo práctico (ejemplo: `01` ).
@@ -119,6 +126,8 @@ Los nombres de directorios siguen el formato `<numero>-<descripcion>`. Para los 
 > La guía conjunta de enunciados se almacena en la raíz de `02-trabajos-practicos/` porque abarca varios TP. Se conserva únicamente la guía completa, sin enunciados individuales ni copias dentro de las carpetas de cada TP. En su nombre, `<anio>` indica el año de cursado con cuatro dígitos y `<cuatrimestre>` indica `1` o `2` (por ejemplo, `2026-2C`).
 >
 > Los archivos correspondientes a un mismo trabajo práctico se almacenan dentro del directorio del TP correspondiente. Solo se crean subdirectorios adicionales cuando sea necesario agrupar varios archivos relacionados.
+>
+> En `06-TP06-TDD-EcoHarmony/`, todos los documentos se almacenan en `00-documentacion/`, conservando el formato `TP06-<tipoCI>-EcoHarmony-<descripcion>.<extension>`. El código fuente, las pruebas automatizadas y su configuración se ubican en `01-implementacion/`.
 
 ### 03-trabajo-investigacion-grupal/
 

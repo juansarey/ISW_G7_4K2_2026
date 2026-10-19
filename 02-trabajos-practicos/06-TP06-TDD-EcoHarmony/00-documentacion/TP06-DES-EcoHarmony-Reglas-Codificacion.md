@@ -86,7 +86,7 @@ Aplicar PEP 8 como base y las reglas del TP2 que estén documentadas.
 ## 6. Contrato de implementación compartido
 
 
-Antes de distribuir cambios que dependan entre sí, documentar en docs/CONTRATO_IMPLEMENTACION.md:
+Antes de distribuir cambios que dependan entre sí, documentar en 00-documentacion/TP06-DES-EcoHarmony-Contrato-Implementacion.md, desde la carpeta del TP6:
 - Los nombres públicos de funciones, clases y módulos.
 - La estructura y los tipos de la solicitud.
 - Los resultados de aceptación y rechazo y sus campos.
@@ -199,7 +199,7 @@ Centralizar las preparaciones reutilizables en tests/conftest.py. Cada test debe
 Usar Ruff como propuesta inicial de formateador y linter, con una configuración común en pyproject.toml y versiones registradas. Si ya existe otra herramienta acordada, conservarla y documentar el cambio de este apartado.
 
 
-Cuando las herramientas estén instaladas y configuradas, ejecutar desde la raíz del proyecto:
+Cuando las herramientas estén instaladas y configuradas, ejecutar desde la carpeta 01-implementacion/ del TP6:
 
 
 ~~~text
@@ -262,11 +262,11 @@ La IA debe:
 
 Mantener actualizados:
 - README.md: instalación, versiones verificadas y comandos para aplicación y tests.
-- docs/CONTRATO_IMPLEMENTACION.md: interfaz pública y resultados.
-- docs/ASIGNACION_CASOS.md: responsables, dependencias y estado.
-- docs/TRAZABILIDAD_PRUEBAS.md: casos, variantes y tests correspondientes.
-- docs/REGISTRO_TDD.md: evidencia de Red, Green y refactorizaciones reales.
-- docs/Acuerdos_del_grupo.md: acuerdos A01–A04 y decisiones adicionales.
+- 00-documentacion/TP06-DES-EcoHarmony-Contrato-Implementacion.md: interfaz pública y resultados.
+- 00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md: responsables, dependencias y estado.
+- 00-documentacion/TP06-TST-EcoHarmony-Trazabilidad-Pruebas.md: casos, variantes y tests correspondientes.
+- 00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md: evidencia de Red, Green y refactorizaciones reales.
+- 00-documentacion/TP06-DES-EcoHarmony-Acuerdos-Grupo.md: acuerdos A01–A04 y decisiones adicionales.
 
 
 Un caso se considera terminado cuando sus variantes acordadas tienen aserciones verificables, pasan junto con la suite previa, respetan los controles adoptados y cuentan con trazabilidad y evidencia.
@@ -278,7 +278,7 @@ No marcar como terminado un caso bloqueado por una definición de dominio pendie
 ## 17. Uso en el repositorio
 
 
-Guardar este archivo como TP06-DES-EcoHarmony-Reglas-Codificacion.md en la carpeta del TP6.
+Guardar este archivo como 00-documentacion/TP06-DES-EcoHarmony-Reglas-Codificacion.md dentro de la carpeta del TP6. Toda la documentación del trabajo se conserva en 00-documentacion/; el código fuente, las pruebas automatizadas y su configuración se ubican en 01-implementacion/.
 
 
 Para herramientas que utilizan AGENTS.md, agregar allí una referencia a estas reglas y al contrato. Conservar las instrucciones existentes del repositorio.
