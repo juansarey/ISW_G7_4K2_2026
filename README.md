@@ -1,6 +1,6 @@
 # Gestión de Configuración del Software - ISW G7 4K2 2026
 
-> **Fecha de creación:** 23/08/2026 | **Última actualización:** 24/08/2026
+> **Fecha de creación:** 23/08/2026 | **Última actualización:** 19/10/2026
 >
 > **Materia:** Ingeniería y Calidad de Software
 >
@@ -42,6 +42,7 @@ El repositorio contempla los siguientes elementos:
 - Documentación de Gestion de Configuración del Software (SCM).
 - Reglas, normas e indicaciones de la materia.
 - Material teórico, bibliografía y presentaciones de referencia.
+- Guía conjunta de enunciados de trabajos prácticos evaluables proporcionada por la cátedra.
 - Productos generados en los trabajos prácticos.
 - Productos del trabajo de investigación grupal.
 
@@ -60,6 +61,7 @@ ISW_G7_4K2_2026/
 │   │   └── <NN>-<TEMA>/
 │   └── 02-notas-clase/
 ├── 02-trabajos-practicos/
+│   ├── ENU-TP-Evaluables-<anio>-<cuatrimestre>C.pdf
 │   └── <NN>-TP<N>-<NOMBRE_TP>/
 └── 03-trabajo-investigacion-grupal/
 ```
@@ -108,11 +110,14 @@ Los nombres de directorios siguen el formato `<numero>-<descripcion>`. Para los 
 
 | Ítem de configuración        | Formato del nombre                                        | Ubicación                |
 | ---------------------------- | --------------------------------------------------------- | ------------------------ |
+| Guía conjunta de enunciados de trabajos prácticos evaluables | `ENU-TP-Evaluables-<anio>-<cuatrimestre>C.<extension>` | `02-trabajos-practicos/` |
 | Producto de trabajo práctico | `TP<numero>-<tipoCI>-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/` |
 
-**Ejemplos:**`TP01-REQ-Mis-Gastos-Especificacion.pdf`, `TP06-SRC-EcoHarmony-Codigo.py`, `TP09-TST-EcoHarmony-Casos-Prueba.xlsx`
+**Ejemplos:**`ENU-TP-Evaluables-2026-2C.pdf`, `TP01-REQ-Mis-Gastos-Especificacion.pdf`, `TP06-SRC-EcoHarmony-Codigo.py`, `TP09-TST-EcoHarmony-Casos-Prueba.xlsx`
 
 > [!NOTE]
+> La guía conjunta de enunciados se almacena en la raíz de `02-trabajos-practicos/` porque abarca varios TP. Se conserva únicamente la guía completa, sin enunciados individuales ni copias dentro de las carpetas de cada TP. En su nombre, `<anio>` indica el año de cursado con cuatro dígitos y `<cuatrimestre>` indica `1` o `2` (por ejemplo, `2026-2C`).
+>
 > Los archivos correspondientes a un mismo trabajo práctico se almacenan dentro del directorio del TP correspondiente. Solo se crean subdirectorios adicionales cuando sea necesario agrupar varios archivos relacionados.
 
 ### 03-trabajo-investigacion-grupal/
@@ -133,6 +138,7 @@ Se considera Ítem de Configuración (IC) a todo elemento relevante para la mate
 | ------ | ------------------------------- |
 | `REG`  | Reglas de la materia            |
 | `MAT`  | Material teórico                |
+| `ENU`  | Guía trabajos prácticos evaluables |
 | `REQ`  | Requerimientos                  |
 | `SRC`  | Código fuente                   |
 | `AUT`  | Pruebas automatizadas           |
