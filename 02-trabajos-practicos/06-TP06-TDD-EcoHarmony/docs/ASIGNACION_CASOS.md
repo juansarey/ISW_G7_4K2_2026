@@ -6,7 +6,7 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `REGISTRO_TDD.md`.
 
 | Caso | Tema | Responsable | Depende de | Estado |
 |---|---|---|---|---|
-| C01 | Compra válida en efectivo | Bongiorno (98495) | — | Pendiente |
+| C01 | Compra válida en efectivo | Bongiorno (98495) | — | Terminado |
 | C02 | Compra válida con tarjeta | Bongiorno (98495) | C01 | Pendiente |
 | C03 | Fecha actual | Por asignar | C01 | Pendiente |
 | C04 | Fecha futura | Por asignar | C01 | Pendiente |
