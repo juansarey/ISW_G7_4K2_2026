@@ -1,4 +1,6 @@
-"""Modelos del contrato de implementación (ver docs/CONTRATO_IMPLEMENTACION.md).
+"""Modelos del contrato de implementación.
+
+Ver 00-documentacion/TP06-DES-EcoHarmony-Contrato-Implementacion.md.
 
 Los campos que el visitante puede omitir se representan con ``None``. El límite de
 entrada (``ecoharmony.entrada``) es el único lugar que convierte texto en estos

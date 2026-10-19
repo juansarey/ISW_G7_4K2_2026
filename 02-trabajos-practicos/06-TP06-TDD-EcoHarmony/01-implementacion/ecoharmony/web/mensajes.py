@@ -35,5 +35,5 @@ MENSAJE_FORMATO_INVALIDO = (
 
 MENSAJE_ERROR_INTERNO = (
     "El servidor no pudo procesar la solicitud. Puede tratarse de un caso cuya "
-    "validación todavía no se construyó (ver docs/ASIGNACION_CASOS.md)."
+    "validación todavía no se construyó (ver la asignación de casos del TP6)."
 )

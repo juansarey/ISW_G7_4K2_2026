@@ -27,5 +27,5 @@ Decisiones de la simulación adoptadas por el grupo. No son exigencias de la cá
 | DT01 | **pytest** en lugar de unittest (cambio respecto de DD06 del entregable, regla 2). | Adoptada |
 | DT02 | **Interfaz web** (Flask + HTML/CSS/JS sin frameworks) en lugar de Tkinter. La lógica de compra no depende de la interfaz. | **A confirmar por el equipo** (regla 2) |
 | DT03 | Ruff como formateador y linter, configurado en `pyproject.toml`. Excepción justificada: N818, por los nombres de excepciones en español. | Adoptada |
-| DT04 | Los rechazos devuelven un único motivo según el orden de `docs/CONTRATO_IMPLEMENTACION.md` §4. | Propuesta |
-| DT05 | Nombres de archivos: el código sigue snake_case (regla 3) y los documentos de `docs/` usan los nombres de la regla 16, en lugar del formato `TP06-<tipoCI>-...` del README del repositorio. Contradicción a resolver con el equipo (regla 1). | **A confirmar por el equipo** |
+| DT04 | Los rechazos devuelven un único motivo según el orden de `TP06-DES-EcoHarmony-Contrato-Implementacion.md` §4. | Propuesta |
+| DT05 | Documentos en `00-documentacion/` con el formato `TP06-<tipoCI>-EcoHarmony-<descripcion>`; código, pruebas y configuración en `01-implementacion/` con snake_case (regla 3). | Adoptada (README del repositorio y regla 17) |

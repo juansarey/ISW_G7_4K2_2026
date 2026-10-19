@@ -2,7 +2,7 @@
 
 Completar el responsable antes de comenzar un caso y actualizar el estado al
 terminarlo (regla 16). Un caso está **terminado** cuando sus tests pasan junto con la
-suite, respetan Ruff y tienen trazabilidad y evidencia en `REGISTRO_TDD.md`.
+suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-Registro-TDD.md`.
 
 | Caso | Tema | Responsable | Depende de | Estado |
 |---|---|---|---|---|

@@ -3,8 +3,8 @@
 Implementación en Python de la User Story **«Comprar entradas»** con desarrollo
 conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 
-> Antes de modificar código, leer `TP06-DES-EcoHarmony-Reglas-Codificacion.md`,
-> `docs/CONTRATO_IMPLEMENTACION.md` y `AGENTS.md` (también si se usa una IA).
+> Antes de modificar código, leer `../00-documentacion/TP06-DES-EcoHarmony-Reglas-Codificacion.md`,
+> `../00-documentacion/TP06-DES-EcoHarmony-Contrato-Implementacion.md` y `AGENTS.md` (también si se usa una IA).
 
 ## Estado
 
@@ -21,7 +21,7 @@ Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la int
 **acepta** por ahora solicitudes que deberían rechazarse (por ejemplo, once
 entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
 escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se
-completen esos casos. Ver `docs/ASIGNACION_CASOS.md`.
+completen esos casos. Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 ## Instalación
 
@@ -37,7 +37,7 @@ python -m pip install -r requirements.txt
 
 ## Comandos
 
-Ejecutar desde esta carpeta (donde está `pyproject.toml`):
+Ejecutar desde `01-implementacion/` (donde está `pyproject.toml`):
 
 ```text
 python -m pytest -q             # suite completa
@@ -63,22 +63,22 @@ tests/
   dobles.py             # Dobles de pago, correo, reloj, calendario y repositorio
   test_c01_*.py         # C01 (un archivo por caso)
   test_c02_*.py         # C02
-docs/
-  CONTRATO_IMPLEMENTACION.md  ASIGNACION_CASOS.md  TRAZABILIDAD_PRUEBAS.md
-  REGISTRO_TDD.md             Acuerdos_del_grupo.md
 ```
+
+La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)
+está en `../00-documentacion/`.
 
 ## Cómo tomar un caso
 
-1. Anotarse como responsable en `docs/ASIGNACION_CASOS.md`.
+1. Anotarse como responsable en `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 2. Leer la especificación del caso en el entregable y crear
    `tests/test_cXX_<comportamiento>.py`.
 3. **Red:** escribir el test usando las fixtures (`servicio_compras`,
    `crear_solicitud`, `pago`, `correo`, `repositorio`...), ejecutarlo y copiar la
-   salida en `docs/REGISTRO_TDD.md`.
+   salida en `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`.
 4. **Green:** implementar lo mínimo en `ecoharmony/` y ejecutar toda la suite.
 5. **Refactor:** mejorar el diseño, volver a ejecutar la suite y Ruff.
-6. Actualizar `TRAZABILIDAD_PRUEBAS.md` y `ASIGNACION_CASOS.md`, y hacer un commit
+6. Actualizar la trazabilidad y la asignación en `../00-documentacion/`, y hacer un commit
    por caso: `<Legajo>: TP6 CXX: <comportamiento>`.
 
 Ejemplo de test de rechazo:
