@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comprar entradas · EcoHarmony Park</title>
+  <link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="contenedor encabezado__contenido">
+      <div class="marca">
+        <span class="marca__icono" aria-hidden="true">🌿</span>
+        <span class="marca__nombre">EcoHarmony Park</span>
+      </div>
+      <span class="etiqueta-simulacion" id="aviso-simulacion">Simulación</span>
+    </div>
+  </header>
+
+  <div class="banda-simulacion">
+    <div class="contenedor">
+      <strong>Modo demostración.</strong>
+      Reloj fijado en <span id="fecha-actual">—</span>. El pago con tarjeta y el
+      correo son servicios simulados: no se realizan cobros ni envíos reales.
+    </div>
+  </div>
+
+  <main class="contenedor disposicion">
+    <section class="tarjeta" aria-labelledby="titulo-compra">
+      <h1 id="titulo-compra">Comprar entradas</h1>
+      <p class="ayuda">Completá los datos de la visita. Las validaciones las realiza el
+        sistema al confirmar.</p>
+
+      <form id="formulario-compra" novalidate>
+        <label class="campo">
+          <span class="campo__etiqueta">Usuario (sesión simulada)</span>
+          <select id="usuario" name="usuario"></select>
+        </label>
+
+        <div class="fila">
+          <label class="campo">
+            <span class="campo__etiqueta">Fecha de visita</span>
+            <input type="date" id="fecha_visita" name="fecha_visita">
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Cantidad de entradas</span>
+            <input type="number" id="cantidad_entradas" name="cantidad_entradas"
+                   inputmode="numeric">
+          </label>
+        </div>
+
+        <fieldset class="campo">
+          <legend class="campo__etiqueta">Edad de cada visitante</legend>
+          <div id="lista-edades" class="lista-edades"></div>
+          <button type="button" class="boton boton--texto" id="agregar-edad">
+            + Agregar edad
+          </button>
+        </fieldset>
+
+        <div class="fila">
+          <label class="campo">
+            <span class="campo__etiqueta">Tipo de pase</span>
+            <select id="tipo_pase" name="tipo_pase">
+              <option value="">Seleccionar…</option>
+              <option value="REGULAR">Regular</option>
+              <option value="VIP">VIP</option>
+            </select>
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Forma de pago</span>
+            <select id="forma_pago" name="forma_pago">
+              <option value="">Seleccionar…</option>
+              <option value="EFECTIVO">Efectivo en boletería</option>
+              <option value="TARJETA">Tarjeta de crédito (pasarela simulada)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="acciones">
+          <button type="submit" class="boton boton--primario">Comprar entradas</button>
+          <button type="button" class="boton" id="cargar-base">Restablecer solicitud base</button>
+        </div>
+      </form>
+
+      <details class="escenarios">
+        <summary>Escenarios de demostración</summary>
+        <p class="ayuda">Modifican un solo dato de la solicitud base.</p>
+        <div class="escenarios__botones">
+          <button type="button" class="chip" data-escenario="tarjeta">Pago con tarjeta</button>
+          <button type="button" class="chip" data-escenario="vip">Pase VIP</button>
+          <button type="button" class="chip" data-escenario="once">Once entradas</button>
+          <button type="button" class="chip" data-escenario="pasada">Fecha pasada</button>
+          <button type="button" class="chip" data-escenario="cerrado">Parque cerrado</button>
+          <button type="button" class="chip" data-escenario="sin-pago">Sin forma de pago</button>
+          <button type="button" class="chip" data-escenario="no-registrado">Usuario no registrado</button>
+        </div>
+      </details>
+    </section>
+
+    <aside class="columna-lateral">
+      <section class="tarjeta" aria-live="polite">
+        <h2>Resultado</h2>
+        <div id="resultado" class="resultado resultado--vacio">
+          Todavía no se envió ninguna solicitud.
+        </div>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Tarifas</h2>
+        <ul class="tarifas" id="tarifas"></ul>
+        <p class="ayuda">Tarifas ficticias por visitante (A03), sin descuentos.</p>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Calendario simulado</h2>
+        <ol class="calendario" id="calendario"></ol>
+        <p class="ayuda">Abre de martes a domingo; el 14/06/2030 es cierre excepcional (A01).</p>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Correo simulado</h2>
+        <ul class="bandeja" id="bandeja"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <script src="/static/comun.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

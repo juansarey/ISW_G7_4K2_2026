@@ -100,3 +100,31 @@ All checks passed!
 $ python -m ruff format --check .
 44 files already formatted
 ```
+
+## Interfaz web (sin ciclo TDD)
+
+Se agregaron `ecoharmony/entrada.py` y `ecoharmony/web/` (Flask, HTML, CSS y JS).
+No tienen tests automáticos: se verificaron manualmente con el cliente de pruebas de
+Flask y una captura del navegador (regla 12: distinguir la verificación manual de
+los tests automáticos). Resultados observados:
+
+- `POST /api/compras` con la solicitud base en efectivo: `CONFIRMADA`,
+  `PENDIENTE_BOLETERIA`, `ENVIADO`, total `20000`.
+- Con tarjeta y pase VIP: `PENDIENTE`, `PENDIENTE_PASARELA`, URL
+  `/pasarela-simulada/<id>`, total `30000`; la página de la pasarela responde 200.
+- Fecha `31/02/2030`: respuesta 400 con mensaje de formato inválido (genérico hasta
+  construir C27).
+- Tipo de pase vacío: respuesta 500 con el mensaje de caso pendiente (hasta
+  construir C17).
+
+`entrada.py` deja que los formatos inválidos lancen el `ValueError` propio de la
+conversión; C25–C28 deben escribir sus tests y reemplazarlo por motivos estables.
+
+Suite tras agregar la interfaz:
+
+```text
+$ python -m pytest -q
+6 passed
+$ python -m ruff check .
+All checks passed!
+```

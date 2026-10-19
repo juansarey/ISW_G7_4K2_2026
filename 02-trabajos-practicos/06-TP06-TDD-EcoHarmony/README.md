@@ -1,0 +1,102 @@
+# TP6 — EcoHarmony Park: Comprar entradas (TDD)
+
+Implementación en Python de la User Story **«Comprar entradas»** con desarrollo
+conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
+
+> Antes de modificar código, leer `TP06-DES-EcoHarmony-Reglas-Codificacion.md`,
+> `docs/CONTRATO_IMPLEMENTACION.md` y `AGENTS.md` (también si se usa una IA).
+
+## Estado
+
+| Elemento | Estado |
+|---|---|
+| Contrato, modelos, dependencias y servicios simulados | Listo |
+| Fixtures (`tests/conftest.py`) y dobles (`tests/dobles.py`) | Listo |
+| C01 — compra válida en efectivo | Terminado (4 tests) |
+| C02 — compra válida con tarjeta | Terminado (2 tests) |
+| C03–C28 | Especificados en `tests/test_cXX_*.py`, **sin tests todavía** |
+| Interfaz web | Lista; verificada manualmente |
+
+Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la interfaz
+**acepta** por ahora solicitudes que deberían rechazarse (por ejemplo, once
+entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
+escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se
+completen esos casos. Ver `docs/ASIGNACION_CASOS.md`.
+
+## Instalación
+
+Versiones verificadas: Python 3.13.7, Flask 3.1.3, pytest 9.1.1 y Ruff 0.17.1, en
+Windows 11. Se requiere Python 3.11 o superior.
+
+```text
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+source .venv/bin/activate       # Linux / macOS
+python -m pip install -r requirements.txt
+```
+
+## Comandos
+
+Ejecutar desde esta carpeta (donde está `pyproject.toml`):
+
+```text
+python -m pytest -q             # suite completa
+python -m pytest -k c01 -v      # tests de un caso
+python -m ruff check .          # linter
+python -m ruff format --check . # formato
+python -m ecoharmony.web        # interfaz web en http://127.0.0.1:5000
+```
+
+## Estructura
+
+```text
+ecoharmony/
+  modelos.py            # SolicitudCompra, Compra, ResultadoCompra, estados y motivos
+  tarifas.py            # MAXIMO_ENTRADAS y tarifas A03
+  dependencias.py       # Protocolos Reloj, Calendario, ServicioPago, ServicioCorreo...
+  servicio_compras.py   # ServicioCompras.comprar: lógica bajo prueba
+  entrada.py            # Límite de entrada: JSON de la interfaz -> SolicitudCompra
+  simulados.py          # Reloj fijo, calendario A01, pago y correo simulados
+  web/                  # Flask (app.py, mensajes.py) y estáticos HTML/CSS/JS
+tests/
+  conftest.py           # Fixtures con los datos de referencia del entregable
+  dobles.py             # Dobles de pago, correo, reloj, calendario y repositorio
+  test_c01_*.py ...     # Un archivo por caso C01–C28
+docs/
+  CONTRATO_IMPLEMENTACION.md  ASIGNACION_CASOS.md  TRAZABILIDAD_PRUEBAS.md
+  REGISTRO_TDD.md             Acuerdos_del_grupo.md
+```
+
+## Cómo tomar un caso
+
+1. Anotarse como responsable en `docs/ASIGNACION_CASOS.md`.
+2. Leer la especificación en el docstring de `tests/test_cXX_*.py`.
+3. **Red:** escribir el test usando las fixtures (`servicio_compras`,
+   `crear_solicitud`, `pago`, `correo`, `repositorio`...), ejecutarlo y copiar la
+   salida en `docs/REGISTRO_TDD.md`.
+4. **Green:** implementar lo mínimo en `ecoharmony/` y ejecutar toda la suite.
+5. **Refactor:** mejorar el diseño, volver a ejecutar la suite y Ruff.
+6. Actualizar `TRAZABILIDAD_PRUEBAS.md` y `ASIGNACION_CASOS.md`, y hacer un commit
+   por caso: `<Legajo>: TP6 CXX: <comportamiento>`.
+
+Ejemplo de test de rechazo:
+
+```python
+from ecoharmony.modelos import MotivoRechazo
+
+
+def test_c12_rechaza_mas_de_diez_entradas(servicio_compras, crear_solicitud):
+    solicitud = crear_solicitud(cantidad_entradas=11, edades=(30,) * 11)
+
+    resultado = servicio_compras.comprar(solicitud)
+
+    assert resultado.aceptada is False
+    assert resultado.motivo == MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
+```
+
+## Simulación
+
+El reloj está fijado en 12/06/2030 y el calendario sigue A01. El pago con tarjeta
+abre una pasarela local (`/pasarela-simulada/<id>`) y el correo se guarda en una
+bandeja en memoria. **No hay integración real con Mercado Pago ni con un servidor
+de correo.** Los datos se pierden al reiniciar el servidor.

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pasarela de pago simulada · EcoHarmony Park</title>
+  <link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body class="pagina-pasarela">
+  <main class="contenedor contenedor--angosto">
+    <section class="tarjeta">
+      <p class="etiqueta-simulacion">Pasarela simulada · no es Mercado Pago</p>
+      <h1>Pago con tarjeta</h1>
+      <p class="ayuda">Esta página representa la redirección al proveedor de pagos.
+        Abrirla no acredita el pago (DD05).</p>
+      <div id="detalle-compra" class="resultado resultado--pendiente">Cargando compra…</div>
+
+      <div class="acciones">
+        <button type="button" class="boton boton--primario" disabled>Aprobar pago</button>
+        <button type="button" class="boton" disabled>Rechazar pago</button>
+      </div>
+      <p class="ayuda">La aprobación y el rechazo del pago se construyen en los casos
+        C19 y C24 (ver operaciones pendientes en docs/CONTRATO_IMPLEMENTACION.md §7).</p>
+      <a class="boton boton--texto" href="/">← Volver a la compra</a>
+    </section>
+  </main>
+
+  <script src="/static/comun.js"></script>
+  <script>
+    async function cargarCompra() {
+      const idCompra = location.pathname.split("/").pop();
+      const panel = document.getElementById("detalle-compra");
+      const respuesta = await fetch(`/api/compras/${encodeURIComponent(idCompra)}`);
+      if (!respuesta.ok) {
+        panel.className = "resultado resultado--error";
+        panel.textContent = "No se encontró la compra.";
+        return;
+      }
+      panel.replaceChildren(crearResumenCompra(await respuesta.json()));
+    }
+    cargarCompra();
+  </script>
+</body>
+</html>
