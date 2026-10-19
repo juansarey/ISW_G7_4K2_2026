@@ -1,0 +1,15 @@
+# Entorno virtual de cada integrante (regla 2)
+.venv/
+venv/
+
+# Cachés de Python y herramientas
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,39 @@
+[project]
+name = "ecoharmony-tp6"
+version = "0.1.0"
+description = "TP6 EcoHarmony Park: User Story «Comprar entradas» desarrollada con TDD."
+requires-python = ">=3.11"
+dependencies = [
+    "flask==3.1.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.17.1",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = [".venv", "venv"]
+
+[tool.ruff.lint]
+# E/W: pycodestyle (PEP 8), F: pyflakes (importaciones y variables sin uso),
+# I: orden de importaciones, N: convenciones de nombres PEP 8, B: errores frecuentes.
+select = ["E", "W", "F", "I", "N", "B"]
+# Excepción justificada: N818 exige el sufijo inglés «Error»; con identificadores en
+# español (regla 3) el término va al inicio, por ejemplo ErrorServicioPago.
+ignore = ["N818"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ecoharmony"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
