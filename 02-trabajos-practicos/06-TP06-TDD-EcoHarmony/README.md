@@ -14,7 +14,7 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | Fixtures (`tests/conftest.py`) y dobles (`tests/dobles.py`) | Listo |
 | C01 — compra válida en efectivo | Terminado (4 tests) |
 | C02 — compra válida con tarjeta | Terminado (2 tests) |
-| C03–C28 | Especificados en `tests/test_cXX_*.py`, **sin tests todavía** |
+| C03–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
 Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la interfaz
@@ -61,7 +61,8 @@ ecoharmony/
 tests/
   conftest.py           # Fixtures con los datos de referencia del entregable
   dobles.py             # Dobles de pago, correo, reloj, calendario y repositorio
-  test_c01_*.py ...     # Un archivo por caso C01–C28
+  test_c01_*.py         # C01 (un archivo por caso)
+  test_c02_*.py         # C02
 docs/
   CONTRATO_IMPLEMENTACION.md  ASIGNACION_CASOS.md  TRAZABILIDAD_PRUEBAS.md
   REGISTRO_TDD.md             Acuerdos_del_grupo.md
@@ -70,7 +71,8 @@ docs/
 ## Cómo tomar un caso
 
 1. Anotarse como responsable en `docs/ASIGNACION_CASOS.md`.
-2. Leer la especificación en el docstring de `tests/test_cXX_*.py`.
+2. Leer la especificación del caso en el entregable y crear
+   `tests/test_cXX_<comportamiento>.py`.
 3. **Red:** escribir el test usando las fixtures (`servicio_compras`,
    `crear_solicitud`, `pago`, `correo`, `repositorio`...), ejecutarlo y copiar la
    salida en `docs/REGISTRO_TDD.md`.

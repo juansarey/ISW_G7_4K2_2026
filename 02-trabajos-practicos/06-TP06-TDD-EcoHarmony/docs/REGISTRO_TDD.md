@@ -128,3 +128,8 @@ $ python -m pytest -q
 $ python -m ruff check .
 All checks passed!
 ```
+
+## Ajuste de la estructura
+
+Se quitaron los archivos de especificación `test_c03`–`test_c28`: la suite contiene
+solo C01 y C02. Cada responsable crea el archivo de su caso al comenzarlo.
