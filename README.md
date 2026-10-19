@@ -53,7 +53,6 @@ A continuación se describe la estructura de directorios del repositorio:
 
 ```text
 ISW_G7_4K2_2026/
-├── README.md
 ├── 00-reglas-materia/
 ├── 01-material-teorico/
 │   ├── 00-presentaciones-clases/
