@@ -340,3 +340,943 @@ Would reformat: 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\t
 3 files would be reformatted, 21 files already formatted
 
 **Refactor:** La validación de fecha pasada se ubicó al inicio de `comprar` aplicando el principio de salida temprana y validación previa antes de producir efectos colaterales (DD02). No se detectaron duplicaciones ni se requirió extraer métodos auxiliares. Se aplicó el formato de código con Ruff sobre `servicio_compras.py` para cumplir con el estándar de estilo del proyecto.
+
+## C11 — Parque cerrado (19/10/2026)
+
+Responsable: Martina Lenta (95294).
+
+**Base previa.** Antes de agregar el test de C11, la suite existente pasó: `16 passed
+in 0.08s`.
+
+**Red.** Se agregó `tests/test_c11_parque_cerrado.py` con variantes en efectivo y
+tarjeta. El calendario compartido considera cerrado D0 + 2. Ambas variantes se
+ejecutaron antes de cambiar producción y fallaron porque el servicio aceptó la
+compra (`AssertionError: assert True is False`). En efectivo se registró la compra
+y se intentó enviar correo; con tarjeta se registró la compra y se inició el pago.
+
+Ejecución de C11 desde `01-implementacion`, antes del cambio de producción:
+
+```text
+platform win32 -- Python 3.10.4, pytest-9.1.1
+collected 18 items / 16 deselected / 2 selected
+test_c11_rechaza_fecha_futura_con_parque_cerrado[FormaPago.EFECTIVO] FAILED
+test_c11_rechaza_fecha_futura_con_parque_cerrado[FormaPago.TARJETA] FAILED
+2 failed, 16 deselected in 0.15s
+```
+
+**Green.** `ServicioCompras.comprar` consulta el calendario inyectado después de
+conservar la validación de fecha pasada y rechaza el día cerrado antes de registrar
+la compra o iniciar pago/correo.
+
+```text
+$ python -m pytest -k c11 -v --tb=short
+2 passed, 16 deselected in 0.04s
+$ python -m pytest -q
+18 passed in 0.07s
+```
+
+**Refactor.** No fue necesario extraer lógica: la validación queda en el flujo
+común antes de los dos caminos de pago.
+
+## C12 — Más de diez entradas (19/10/2026)
+
+Responsable: Martina Lenta (95294).
+
+**Red.** Se agregó `tests/test_c12_maximo_entradas.py` con efectivo y tarjeta.
+La solicitud contiene `MAXIMO_ENTRADAS + 1` entradas y la misma cantidad de
+edades válidas para aislar la regla de máximo. Ambas variantes se ejecutaron antes
+de cambiar producción y fallaron porque la compra fue aceptada.
+
+```text
+$ python -m pytest -k c12 -v --tb=short
+platform win32 -- Python 3.10.4, pytest-9.1.1
+collected 20 items / 18 deselected / 2 selected
+test_c12_rechaza_mas_de_diez_entradas[FormaPago.EFECTIVO] FAILED
+test_c12_rechaza_mas_de_diez_entradas[FormaPago.TARJETA] FAILED
+2 failed, 18 deselected in 0.18s
+```
+
+**Green.** `ServicioCompras.comprar` rechaza cantidades mayores que
+`MAXIMO_ENTRADAS`; diez entradas continúan permitidas. La condición se evalúa antes
+de registrar la compra o iniciar pago/correo.
+
+```text
+$ python -m pytest -k c12 -v --tb=short
+2 passed, 18 deselected in 0.05s
+$ python -m pytest -q
+20 passed in 0.07s
+```
+
+**Refactor.** Se reutilizó `MAXIMO_ENTRADAS`; no hizo falta agregar lógica auxiliar.
+
+**Verificación final de C11 y C12.** En Windows con Python 3.10.4 y pytest 9.1.1,
+la suite completa pasó (`20 passed`). Ruff 0.17.1 pasa para `servicio_compras.py`
+y los tests C11/C12. Los controles globales informan dos problemas preexistentes,
+ambos `W292` por falta de salto de línea final en `test_c05_una_entrada.py` y
+`test_c06_nueve_entradas.py`; `ruff format --check .` señala únicamente esos mismos
+dos archivos. No se modificaron porque C05/C06 están fuera del alcance.
+
+## C13 — Forma de pago ausente (19/10/2026)
+
+Responsable: Tomas Zengaro (403344).
+
+**Entorno.** Entorno virtual propio en `01-implementacion/.venv` (excluido por
+`.gitignore`), con las dependencias de `requirements.txt`: Python 3.14.6,
+pytest 9.1.1 y Ruff 0.17.1, en Windows 11. En las salidas copiadas se omiten las
+líneas de encabezado que solo muestran la ruta local del equipo.
+
+**Base previa.** Antes de escribir el test, la suite existente pasó completa:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+20 passed in 0.09s
+```
+
+**Red.** Se creó `tests/test_c13_forma_pago_ausente.py` con un único test,
+`test_c13_rechaza_compra_sin_forma_de_pago_seleccionada`. La solicitud se arma con
+`crear_solicitud(forma_pago=None)`, de modo que el resto de los datos de la
+solicitud base sigue siendo válido y la omisión de la forma de pago es la única
+causa posible de rechazo. No se parametrizó por efectivo y tarjeta: justamente es
+el dato que falta. Además del motivo, el test exige que no haya compra registrada,
+redirección, pedido de pago ni correo.
+
+Al ejecutarlo sin tocar producción falló como se esperaba. El servicio no
+distinguía la ausencia: todo lo que no era tarjeta seguía el camino de efectivo,
+así que la compra quedó confirmada con `forma_pago=None`, pago pendiente en
+boletería y correo enviado.
+
+```text
+$ .venv\Scripts\python -m pytest -k c13 -v --tb=short
+collecting ... collected 21 items / 20 deselected / 1 selected
+
+tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada FAILED [100%]
+
+================================== FAILURES ===================================
+___________ test_c13_rechaza_compra_sin_forma_de_pago_seleccionada ____________
+tests\test_c13_forma_pago_ausente.py:27: in test_c13_rechaza_compra_sin_forma_de_pago_seleccionada
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='03faa7822a80463ab03bda72d3edd2b2', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=None, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+=========================== short test summary info ===========================
+FAILED tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada
+====================== 1 failed, 20 deselected in 0.18s =======================
+```
+
+**Green.** En `ServicioCompras.comprar` se agregó una guarda que devuelve
+`MotivoRechazo.FORMA_PAGO_AUSENTE` cuando `forma_pago` es `None`. Se ubicó después
+de la validación de cantidad y antes de elegir entre tarjeta y efectivo, como pide
+el orden del contrato (§4), por lo que ningún camino de pago llega a ejecutarse.
+
+```text
+$ .venv\Scripts\python -m pytest -k c13 -v --tb=short
+collecting ... collected 21 items / 20 deselected / 1 selected
+
+tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada PASSED [100%]
+
+====================== 1 passed, 20 deselected in 0.11s =======================
+$ .venv\Scripts\python -m pytest -q
+.....................                                                    [100%]
+21 passed in 0.09s
+```
+
+**Refactor.** Se evaluó y no se aplicó. La guarda nueva tiene la misma forma que
+las de fecha y cantidad y deja explícita una decisión que antes estaba implícita
+(el `else` del efectivo absorbía cualquier valor que no fuera tarjeta). Con cuatro
+guardas cortas `comprar` todavía se lee de corrido; extraerlas ahora sería mover
+código sin una ganancia clara. Se vuelve a evaluar al incorporar C14.
+
+**Verificación de Ruff.** `ruff check` y `ruff format --check` sobre
+`ecoharmony/servicio_compras.py` y `tests/test_c13_forma_pago_ausente.py`
+informaron `All checks passed!` y `2 files already formatted`. Sobre todo el
+proyecto (`.`) persisten solo los dos problemas preexistentes ya registrados en C12
+(`W292` en `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py`, que también
+son los dos archivos que `ruff format --check .` reformatearía). No se tocaron por
+estar fuera del alcance de este caso.
+
+## C14 — Usuario no registrado (19/10/2026)
+
+Responsable: Tomas Zengaro (403344). Mismo entorno que C13 (Python 3.14.6,
+pytest 9.1.1, Ruff 0.17.1, Windows 11); también se omiten las líneas de
+encabezado con la ruta local.
+
+**Base previa.** Con C13 ya integrado, la suite pasó completa antes de empezar:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+21 passed in 0.09s
+```
+
+**Red.** Se creó `tests/test_c14_usuario_no_registrado.py` con el test
+`test_c14_rechaza_compra_de_visitante_sin_registro`, parametrizado con efectivo y
+tarjeta. El visitante se obtiene con `replace(usuario_registrado, registrado=False)`:
+conserva el nombre `visitante01` y el correo de referencia, así que la marca de
+registro es lo único que difiere de la solicitud base. No se agregó una fixture a
+`conftest.py` porque solo este caso usa ese visitante. Las dos variantes se
+ejecutaron antes de cambiar producción y fallaron porque el servicio nunca miraba
+el registro: en efectivo la compra quedó confirmada y con correo enviado, y con
+tarjeta quedó registrada como pendiente y se abrió la pasarela.
+
+```text
+$ .venv\Scripts\python -m pytest -k c14 -v --tb=short
+collecting ... collected 23 items / 21 deselected / 2 selected
+
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] FAILED [100%]
+
+================================== FAILURES ===================================
+____ test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] ____
+tests\test_c14_usuario_no_registrado.py:38: in test_c14_rechaza_compra_de_visitante_sin_registro
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='e54ae90e08b54005b5d015b5a9713f9f', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=False), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+____ test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] _____
+tests\test_c14_usuario_no_registrado.py:38: in test_c14_rechaza_compra_de_visitante_sin_registro
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='a55e048ec907409da7e0d4dd72507e13', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=False), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/a55e048ec907409da7e0d4dd72507e13').aceptada
+=========================== short test summary info ===========================
+FAILED tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO]
+FAILED tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA]
+====================== 2 failed, 21 deselected in 0.16s =======================
+```
+
+**Green.** Se agregó al comienzo de `ServicioCompras.comprar` una guarda que
+devuelve `MotivoRechazo.USUARIO_NO_REGISTRADO` si `solicitud.usuario.registrado`
+es falso. Va antes de la fecha, la cantidad y la forma de pago porque el usuario
+es el primer punto del orden del contrato (§4), y por eso tampoco llegan a
+consultarse el reloj ni el calendario.
+
+```text
+$ .venv\Scripts\python -m pytest -k c14 -v --tb=short
+collecting ... collected 23 items / 21 deselected / 2 selected
+
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] PASSED [100%]
+
+====================== 2 passed, 21 deselected in 0.10s =======================
+$ .venv\Scripts\python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.11s
+```
+
+**Refactor.** Esta vez sí se aplicó. Con la guarda de C14, `comprar` acumulaba
+cinco bloques que solo cambiaban el motivo y repetían la construcción de
+`ResultadoCompra(aceptada=False, ...)`, mezclando la validación con la coordinación
+del pago. Se extrajo el método privado `_motivo_de_rechazo(solicitud)`, que
+devuelve el primer `MotivoRechazo` en el orden del contrato o `None`, y `comprar`
+quedó en dos pasos: si hay motivo arma el rechazo en un único lugar; si no, despacha
+a tarjeta o efectivo. Las condiciones y su orden son los mismos; solo se nombró
+`fecha` para no repetir `solicitud.fecha_visita`. Las validaciones pendientes
+(C15–C18) pueden sumarse ahí como una línea más sin tocar la parte de pago. No
+cambia la interfaz pública ni el contrato. Tras el cambio se repitió la suite y,
+por separado, los casos de rechazo ya existentes:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.10s
+$ .venv\Scripts\python -m pytest -k "c10 or c11 or c12 or c13 or c14" -q
+........                                                                 [100%]
+8 passed, 15 deselected in 0.08s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py`,
+`tests/test_c13_forma_pago_ausente.py` y `tests/test_c14_usuario_no_registrado.py`:
+`All checks passed!` y `3 files already formatted`. En el proyecto completo
+`ruff check .` sigue mostrando únicamente los dos `W292` preexistentes de
+`test_c05_una_entrada.py` y `test_c06_nueve_entradas.py`, y `ruff format --check .`
+informa `2 files would be reformatted, 28 files already formatted` por esos mismos
+archivos, que quedan fuera del alcance de C14.
+
+## C15 — Fecha ausente (20/10/2026)
+
+Responsable: Nicolas Steffolani (94196).
+
+**Entorno.** Entorno virtual en `01-implementacion/.venv` con Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1 en Linux. En las salidas copiadas se omiten las líneas de encabezado con rutas locales.
+
+**Base previa.** Antes de escribir el test de C15, con C14 ya integrado, la suite pasó completa:
+
+```text
+$ python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.03s
+```
+
+**Red.** Se creó `tests/test_c15_fecha_ausente.py` con el test `test_c15_rechaza_compra_sin_fecha_de_visita`, parametrizado con `FormaPago.EFECTIVO` y `FormaPago.TARJETA`. La solicitud se genera con `crear_solicitud(fecha_visita=None, forma_pago=forma_pago)`, de modo que el resto de los datos (usuario registrado, cantidad de entradas con sus edades y tipo de pase) son válidos y la ausencia de la fecha es la única causa del rechazo. El test comprueba que el resultado no sea aceptado, que el motivo sea `FECHA_AUSENTE`, que no haya compra registrada ni URL de redirección, y que no se hayan registrado compras ni realizado pedidos de pago o intentos de envío de correo.
+
+Al ejecutarlo antes de modificar producción falló en ambas variantes porque el servicio no validaba la ausencia de la fecha y procedía a confirmar la compra en efectivo o abrir la pasarela de pago con tarjeta:
+
+```text
+$ python -m pytest -k c15 -v --tb=short
+collecting ... collected 25 items / 23 deselected / 2 selected
+
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] ________
+tests/test_c15_fecha_ausente.py:34: in test_c15_rechaza_compra_sin_fecha_de_visita
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='dcd6c88ec6ad434fbada23fe446606d9', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=None, cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+________ test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] ________
+tests/test_c15_fecha_ausente.py:34: in test_c15_rechaza_compra_sin_fecha_de_visita
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='3f87a518a49c473ca662cac3f09f4768', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=None, cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/3f87a518a49c473ca662cac3f09f4768').aceptada
+=========================== short test summary info ============================
+FAILED tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO]
+FAILED tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA]
+======================= 2 failed, 23 deselected in 0.04s =======================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo`, dentro del bloque de validaciones de fecha, se agregó la guarda que comprueba si `fecha is None` y devuelve `MotivoRechazo.FECHA_AUSENTE`. Se ubica inmediatamente después de la validación del usuario y antes de evaluar fecha pasada o parque cerrado, cumpliendo con el orden establecido en el contrato (§4).
+
+```text
+$ python -m pytest -k c15 -v --tb=short
+collecting ... collected 25 items / 23 deselected / 2 selected
+
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] PASSED [100%]
+
+======================= 2 passed, 23 deselected in 0.02s =======================
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Refactor.** Al haber garantizado que `fecha is None` corta inmediatamente y retorna `FECHA_AUSENTE`, las dos condiciones subsiguientes (`FECHA_PASADA` y `PARQUE_CERRADO`) ya no necesitan verificar defensivamente `fecha is not None and`. Se simplificaron ambas expresiones en `_motivo_de_rechazo`, mejorando la legibilidad sin alterar el comportamiento. Tras el cambio, se verificó nuevamente la suite completa:
+
+```text
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py` y `tests/test_c15_fecha_ausente.py`: `All checks passed!` y `2 files already formatted`.
+
+## C16 — Edades incompletas (20/10/2026)
+
+Responsable: Nicolas Steffolani (94196). Mismo entorno que C15 (Python 3.12.3, pytest 9.1.1, Ruff 0.17.1 en Linux).
+
+**Base previa.** Antes de comenzar C16, con C15 integrado, la suite completa pasó:
+
+```text
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Red.** Se creó `tests/test_c16_edades_incompletas.py` con `test_c16_rechaza_compra_con_edades_incompletas`, parametrizado con `FormaPago.EFECTIVO` y `FormaPago.TARJETA`. Siguiendo la especificación del entregable (CA01: dos entradas y edad informada para un solo visitante), se construye la solicitud mediante `crear_solicitud(cantidad_entradas=2, edades=(24,), forma_pago=forma_pago)`, dejando todos los demás campos válidos. Se comprueba que el resultado devuelva `aceptada=False`, el motivo `EDADES_INCOMPLETAS`, y la ausencia de efectos secundarios (sin compra guardada, sin iniciar pago y sin enviar correo).
+
+Al ejecutar los tests antes de modificar la lógica de producción, fallaron en ambas opciones de pago pues el servicio aceptaba la compra con una sola edad para dos entradas:
+
+```text
+$ python -m pytest -k c16 -v --tb=short
+collecting ... collected 27 items / 25 deselected / 2 selected
+
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] FAILED [100%]
+
+=================================== FAILURES ===================================
+______ test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] ______
+tests/test_c16_edades_incompletas.py:37: in test_c16_rechaza_compra_con_edades_incompletas
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='f3142059ed5944f38e4e23f6768db1bf', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24,), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+______ test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] _______
+tests/test_c16_edades_incompletas.py:37: in test_c16_rechaza_compra_con_edades_incompletas
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='f6de631e0fb845ac9646a7b4a7c89a1e', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24,), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/f6de631e0fb845ac9646a7b4a7c89a1e').aceptada
+=========================== short test summary info ============================
+FAILED tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO]
+FAILED tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA]
+======================= 2 failed, 25 deselected in 0.04s =======================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo`, a continuación de la validación de la cantidad de entradas y antes de las validaciones de tipo de pase y forma de pago (respetando el orden del contrato §4), se agregó la comprobación de que la cantidad de edades informadas no sea menor a la cantidad de entradas solicitadas:
+
+```python
+if cantidad is not None and len(solicitud.edades) < cantidad:
+    return MotivoRechazo.EDADES_INCOMPLETAS
+```
+
+Se ejecutaron los tests de C16 y la suite completa:
+
+```text
+$ python -m pytest -k c16 -v --tb=short
+collecting ... collected 27 items / 25 deselected / 2 selected
+
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] PASSED [100%]
+
+======================= 2 passed, 25 deselected in 0.02s =======================
+$ python -m pytest -q
+...........................                                              [100%]
+27 passed in 0.04s
+```
+
+**Refactor.** Se analizó el método `_motivo_de_rechazo`. Las condiciones de validación quedaron agrupadas de forma ordenada y concisa respetando el contrato §4 (usuario -> fecha -> cantidad -> edades -> forma de pago). No se requirió extraer métodos adicionales ya que cada verificación es directa de una o dos líneas. Se ejecutaron la suite completa y la totalidad de los casos de rechazo existentes:
+
+```text
+$ python -m pytest -q
+...........................                                              [100%]
+27 passed in 0.04s
+$ python -m pytest -k "c10 or c11 or c12 or c13 or c14 or c15 or c16" -q
+............                                                             [100%]
+12 passed, 15 deselected in 0.03s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py`, `tests/test_c15_fecha_ausente.py` y `tests/test_c16_edades_incompletas.py`: `All checks passed!` y `3 files already formatted`. En el proyecto completo `ruff check .` continúa reportando únicamente los dos avisos `W292` preexistentes en `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py` fuera del alcance de estos casos.
+
+## C17 — Tipo de pase ausente (20/10/2026)
+
+Entorno: Mac, Python 3.14.5, pytest 9.1.1, Ruff 0.17.1.
+Responsable: Santiago Adaime (91316).
+
+**Red.** Se creó `tests/test_c17_tipo_pase_ausente.py`, con una variante para
+efectivo y otra para tarjeta (CA01). Cada una deja el tipo de pase en `None` y
+verifica el rechazo con `TIPO_PASE_AUSENTE` y la ausencia de compra registrada,
+solicitud de pago y correo. Fallan porque `ServicioCompras` todavía no valida el
+tipo de pase:
+
+```text
+$ python -m pytest -k c17 -v --tb=short
+========================================================================================== test session starts ==========================================================================================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion
+configfile: pyproject.toml
+testpaths: tests
+collected 29 items / 27 deselected / 2 selected                                                                                                                                                         
+
+tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] FAILED                                                                                          [ 50%]
+tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] FAILED                                                                                           [100%]
+
+=============================================================================================== FAILURES ================================================================================================
+_____________________________________________________________________ test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] ______________________________________________________________________
+tests/test_c17_tipo_pase_ausente.py:29: in test_c17_rechaza_compra_sin_tipo_de_pase
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:46: in comprar
+    return self._confirmar_en_efectivo(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:75: in _confirmar_en_efectivo
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:110: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: None
+______________________________________________________________________ test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] ______________________________________________________________________
+tests/test_c17_tipo_pase_ausente.py:29: in test_c17_rechaza_compra_sin_tipo_de_pase
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:45: in comprar
+    return self._iniciar_pago_con_tarjeta(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:85: in _iniciar_pago_con_tarjeta
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:110: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: None
+======================================================================================== short test summary info ========================================================================================
+FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] - KeyError: None
+FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] - KeyError: None
+=================================================================================== 2 failed, 27 deselected in 0.10s ====================================================================================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, después del chequeo
+de edades y antes del de forma de pago (orden del contrato §4), el rechazo con
+`MotivoRechazo.TIPO_PASE_AUSENTE` cuando `solicitud.tipo_pase is None`.
+
+```text
+$ python -m pytest -q
+.............................                                                                                                                                                                     [100%]
+29 passed in 0.04s
+
+```
+
+**Refactor.**  Sin cambios
+
+
+
+## C18 — Cantidad de entradas ausente (20/10/2026)
+
+Entorno: Mac, Python 3.14.5, pytest 9.1.1, Ruff 0.17.1. 
+Responsable: Santiago Adaime (91316).
+
+**Red.** Se creó `tests/test_c18_cantidad_ausente.py`, con una variante para
+efectivo y otra para tarjeta (CA01). Cada una deja la cantidad en `None`, conserva
+las edades de la solicitud base y verifica el rechazo con `CANTIDAD_AUSENTE` y la
+ausencia de compra registrada, solicitud de pago y correo. Fallan porque
+`ServicioCompras` todavía no valida la cantidad:
+
+```text
+$ python -m pytest -k c18 -v --tb=short
+========================================================================================== test session starts ==========================================================================================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion
+configfile: pyproject.toml
+testpaths: tests
+collected 31 items / 29 deselected / 2 selected                                                                                                                                                         
+
+tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] FAILED                                                                                   [ 50%]
+tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] FAILED                                                                                    [100%]
+
+=============================================================================================== FAILURES ================================================================================================
+_________________________________________________________________ test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] __________________________________________________________________
+tests/test_c18_cantidad_ausente.py:29: in test_c18_rechaza_compra_sin_cantidad_de_entradas
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:46: in comprar
+    return self._confirmar_en_efectivo(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:77: in _confirmar_en_efectivo
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:112: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+__________________________________________________________________ test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] __________________________________________________________________
+tests/test_c18_cantidad_ausente.py:29: in test_c18_rechaza_compra_sin_cantidad_de_entradas
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:45: in comprar
+    return self._iniciar_pago_con_tarjeta(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:87: in _iniciar_pago_con_tarjeta
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:112: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+======================================================================================== short test summary info ========================================================================================
+FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+=================================================================================== 2 failed, 29 deselected in 0.10s ====================================================================================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, al inicio del bloque
+de cantidad y antes del chequeo del máximo, el rechazo con
+`MotivoRechazo.CANTIDAD_AUSENTE` cuando `cantidad is None`.
+
+```text
+$ python -m pytest -q
+...............................                                                                                                                                                                   [100%]
+31 passed in 0.04s 
+```
+
+**Refactor.** Con `None` descartado antes, se quitó la condición
+`cantidad is not None and` de los chequeos de `CANTIDAD_EXCEDE_MAXIMO` (C12) y
+`EDADES_INCOMPLETAS` (C16), que había quedado como protección provisoria. El
+comportamiento no cambia. Verificación posterior:
+
+```text
+$ python -m pytest -q
+...............................                                          [100%]
+31 passed in 0.04s
+$ python -m ruff check .
+W292 [*] No newline at end of file
+  --> tests/test_c05_una_entrada.py:18:51
+  (...)
+W292 [*] No newline at end of file
+  --> tests/test_c06_nueve_entradas.py:20:45
+  (...)
+Found 2 errors.
+[*] 2 fixable with `--fix`.
+$ python -m ruff format --check .
+unformatted: File would be reformatted
+  --> tests/test_c05_una_entrada.py:18:51
+  (...)
+unformatted: File would be reformatted
+  --> tests/test_c06_nueve_entradas.py:20:45
+  (...)
+2 files would be reformatted, 32 files already formatted
+```
+
+Los dos avisos de Ruff (W292 y formato) son preexistentes: están en los tests de
+C05 y C06, ajenos a C17 y C18, y no se modificaron en este caso. Los archivos de
+este caso se verificaron por separado:
+
+```text
+$ python -m ruff check ecoharmony/servicio_compras.py tests/test_c17_tipo_pase_ausente.py tests/test_c18_cantidad_ausente.py
+
+All checks passed!
+
+$ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c17_tipo_pase_ausente.py tests/test_c18_cantidad_ausente.py
+
+All checks passed!
+```
+
+## C19 — Correo de confirmación (20/10/2026)
+
+Responsable: Lucas Schoninger (97927).
+
+**Base previa.** Antes del test de C19, la suite completa pasó:
+
+```text
+$ python -m pytest -q
+31 passed in 0.18s
+```
+
+**Red.** Se agregó `tests/test_c19_correo_confirmacion.py`. Sus cuatro variantes
+cubren efectivo/tarjeta con envío exitoso o fallo inicial. También comprueban que
+una notificación aprobada repetida no duplica correo ni pago, que una notificación
+rechazada no confirma ni envía correo, y las precondiciones y transiciones
+incompatibles de la operación nueva. Antes de modificar producción se ejecutó:
+
+```text
+$ python -m pytest -k c19 -v --tb=short
+collected 39 items / 31 deselected / 8 selected
+7 failed, 1 passed, 31 deselected in 0.43s
+```
+
+Las variantes que necesitan resultado de tarjeta fallaron porque aún no existía
+`registrar_resultado_pago`; el envío fallido en efectivo propagó
+`ErrorServicioCorreo`. Las otras guardas fallaron por la operación inexistente.
+La variante de efectivo con correo exitoso ya pasaba.
+
+**Green.** Se incorporó el manejo específico de `ErrorServicioCorreo` y
+`registrar_resultado_pago`. La operación valida compra, forma y estado; aplica
+los estados de A02, persiste la transición antes del correo y trata notificaciones
+repetidas como idempotentes. No se implementó el reintento de C30.
+
+```text
+$ python -m pytest -k c19 -v --tb=short
+8 passed, 31 deselected in 0.39s
+$ python -m pytest -q
+39 passed in 0.25s
+```
+
+La verificación global de Ruff continúa encontrando los dos avisos `W292` y los
+dos archivos no formateados preexistentes de C05 y C06. El servicio y el test C19
+se formatearon y verificaron por separado; esos archivos ajenos al caso no se
+modificaron. C29 y C30 permanecen pendientes.
+
+## C20 — Resumen de la compra (20/10/2026)
+
+Responsable: Lucas Schoninger (97927).
+
+**Primera ejecución (Green directo).** Se agregó
+`tests/test_c20_resumen_compra.py` con cuatro variantes: pase regular/VIP por
+efectivo/tarjeta. Se verifica compra confirmada de dos entradas para D0 + 1,
+conservación de fecha, pase y forma de pago, total `Decimal("20000")` para regular
+y `Decimal("30000")` para VIP, y estado de pago acorde con A02. Las cuatro pruebas
+pasaron sin modificar código de producción:
+
+```text
+$ python -m pytest -k c20 -v --tb=short
+collected 43 items / 39 deselected / 4 selected
+4 passed, 39 deselected in 0.20s
+```
+
+Se reutilizaron `calcular_total` y `registrar_resultado_pago`, ya implementados.
+El resumen se verifica en `ResultadoCompra.compra`; esto no prueba una
+presentación visual en el navegador. C20 no añade comportamiento para C29 ni C30.
+
+**Verificación final conjunta de C19 y C20.**
+
+```text
+$ python -m pytest -q
+43 passed in 0.29s
+$ python -m ruff check ecoharmony/servicio_compras.py tests/test_c19_correo_confirmacion.py tests/test_c20_resumen_compra.py
+All checks passed!
+$ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c19_correo_confirmacion.py tests/test_c20_resumen_compra.py
+3 files already formatted
+```
+
+Los controles globales de Ruff siguen señalando únicamente los problemas
+preexistentes `W292` y de formato en los tests de C05 y C06, que no se modificaron.
+
+## C21 — Inicio del pago con tarjeta (20/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Juan Pablo Sacco Rey (89319).
+
+**Comportamiento existente — Green directo.** Se creó
+`tests/test_c21_inicio_pago_tarjeta.py` y se comprobó el inicio exitoso del pago
+con tarjeta. La prueba verifica una única solicitud a la pasarela con el
+identificador y total correctos, la URL esperada, la compra registrada con estados
+`PENDIENTE` / `PENDIENTE_PASARELA` y la ausencia de correo antes de aprobar el
+pago. El comportamiento ya estaba implementado por C02.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo -v --tb=short -p no:cacheprovider
+collected 1 item
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo PASSED [100%]
+
+============================== 1 passed in 0.06s ==============================
+```
+
+**Red.** Se agregó
+`test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela`, configurando
+`pago.falla_al_iniciar = True`. La prueba espera un resultado rechazado con
+`ERROR_PAGO`, sin compra ni URL, con un único intento de iniciar el pago y sin
+correo. El caso no agrega reglas sobre la persistencia interna del intento.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela -v --tb=short -p no:cacheprovider
+collected 1 item
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela FAILED [100%]
+
+tests/dobles.py:43: in iniciar_pago_tarjeta
+    raise ErrorServicioPago("Fallo configurado en el doble de pago.")
+E   ecoharmony.dependencias.ErrorServicioPago: Fallo configurado en el doble de pago.
+
+============================== 1 failed in 0.11s ==============================
+```
+
+La prueba falló porque `_iniciar_pago_con_tarjeta` propagaba
+`ErrorServicioPago` y no devolvía el resultado definido por A04 y el contrato.
+
+**Green.** Se importó `ErrorServicioPago` y se capturó específicamente alrededor
+de `iniciar_pago_tarjeta`. Ante ese fallo se devuelve
+`ResultadoCompra(aceptada=False, motivo=MotivoRechazo.ERROR_PAGO)`. Se conservó
+el orden de persistencia existente y no se modificó la lógica de C02, C19 o C20.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py -v --tb=short -p no:cacheprovider
+collected 2 items
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo PASSED [ 50%]
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela PASSED [100%]
+
+============================== 2 passed in 0.04s ==============================
+
+$ python -m pytest -q -p no:cacheprovider
+.............................................                            [100%]
+45 passed in 0.23s
+```
+
+**Refactor.** Se revisó `_iniciar_pago_con_tarjeta` y no se identificaron
+duplicaciones, nombres confusos ni una extracción que mejorara el diseño. No se
+realizaron cambios. El manejo de `ErrorServicioPago` tiene una responsabilidad
+distinta del manejo de correo y deja intacto `registrar_resultado_pago`.
+
+**Verificación de Ruff.** Se instaló Ruff 0.17.1 en el entorno virtual local
+excluido del repositorio. Los archivos de C21 pasan ambos controles:
+
+```text
+$ .\.venv\Scripts\python.exe -m ruff check --no-cache ecoharmony/servicio_compras.py tests/test_c21_inicio_pago_tarjeta.py
+All checks passed!
+
+$ .\.venv\Scripts\python.exe -m ruff format --check --no-cache ecoharmony/servicio_compras.py tests/test_c21_inicio_pago_tarjeta.py
+2 files already formatted
+```
+
+Los controles globales continúan señalando únicamente los problemas preexistentes
+de C05 y C06, que no se modificaron: dos avisos `W292` por falta de salto de línea
+final y esos mismos dos archivos como pendientes de formato.
+
+## C22 — Efectivo sin redirección (20/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Juan Pablo Sacco Rey (89319).
+
+**Primera ejecución — Green directo.** Se creó
+`tests/test_c22_efectivo_sin_redireccion.py` con una prueba parametrizada en dos
+variantes: servicio de pago disponible y servicio configurado para fallar. En
+ambas se verifica que la compra en efectivo sea aceptada y confirmada, que el pago
+quede `PENDIENTE_BOLETERIA`, que no exista URL de redirección ni solicitud a la
+pasarela, que la compra quede registrada una sola vez y que se solicite un único
+correo de confirmación.
+
+```text
+$ python -m pytest tests/test_c22_efectivo_sin_redireccion.py -v --tb=short -p no:cacheprovider
+collected 2 items
+
+tests/test_c22_efectivo_sin_redireccion.py::test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir[pago_disponible] PASSED [ 50%]
+tests/test_c22_efectivo_sin_redireccion.py::test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir[pago_configurado_para_fallar] PASSED [100%]
+
+============================== 2 passed in 0.03s ==============================
+```
+
+No hubo una etapa Red porque el flujo de efectivo ya estaba implementado por C01
+y el tratamiento del correo había sido completado por C19. Conforme a la regla 8,
+no se provocó un fallo artificial y no fue necesario modificar código de
+producción.
+
+**Verificación de la suite.** Con las dos variantes de C22, la suite completa pasó:
+
+```text
+$ python -m pytest -q -p no:cacheprovider
+...............................................                          [100%]
+47 passed in 0.28s
+```
+
+**Refactor.** La parametrización evita duplicar la misma preparación y las mismas
+aserciones para las dos configuraciones del servicio de pago. El nombre describe
+el comportamiento observable y las verificaciones corresponden al contrato. No se
+identificaron mejoras necesarias y no se realizaron cambios.
+
+**Verificación de Ruff.** El archivo de C22 pasa ambos controles:
+
+```text
+$ .\.venv\Scripts\python.exe -m ruff check --no-cache tests/test_c22_efectivo_sin_redireccion.py
+All checks passed!
+
+$ .\.venv\Scripts\python.exe -m ruff format --check --no-cache tests/test_c22_efectivo_sin_redireccion.py
+1 file already formatted
+```
+
+Los controles globales continúan señalando únicamente los problemas preexistentes
+de C05 y C06, que no se modificaron: dos avisos `W292` por falta de salto de línea
+final y esos mismos dos archivos como pendientes de formato. Los otros 36 archivos
+ya están formateados.
+
+## C23 - Rechazo sin efectos (20/10/2026)
+
+Entorno: MacOS, Python 3.13.16, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Romeo Facundo Montes (406511).
+
+**Primera ejecución — RED.** Se creó `tests/test_c23_rechazo_sin_efectos.py` con la lógica de crear una solicitud que exceda la cantidad máxima de entradas (10) y viole el CA07. Falló inicialmente en la fase Red debido a dos motivos: primero, porque la lógica de validación de exceso de entradas ya estaba contemplada de antemano en el servicio, y segundo, porque el doble de prueba de correo (CorreoDoble) no disponía del atributo .enviados, sino que se llamaba intentos:
+
+```text
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m pytest -k c23 -v
+============================================== test session starts ===============================================
+platform darwin -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony
+collected 49 items / 48 deselected / 1 selected                                                                  
+
+01-implementacion/tests/test_c23_rechazo_sin_efectos.py::test_c23_rechaza_exceso_entradas_sin_efectos_secundariosFAILED [100%]
+
+==================================================== FAILURES ====================================================
+____________________________ test_c23_rechaza_exceso_entradas_sin_efectos_secundarios ____________________________
+
+servicio_compras = <ecoharmony.servicio_compras.ServicioCompras object at 0x10654f230>
+crear_solicitud = <function crear_solicitud.<locals>._crear at 0x106634b80>
+pago = <tests.dobles.PagoDoble object at 0x10654ea50>, correo = <tests.dobles.CorreoDoble object at 0x10654ef90>
+
+    def test_c23_rechaza_exceso_entradas_sin_efectos_secundarios(
+        servicio_compras, crear_solicitud, pago, correo
+    ):
+        # Preparación: Solicitud con 11 entradas (supera el límite de CA07)
+        solicitud = crear_solicitud(cantidad_entradas=11)
+    
+        # Ejecución
+        resultado = servicio_compras.comprar(solicitud)
+    
+        # Verificación: Se rechaza y se indica el motivo correspondiente
+        assert resultado.aceptada is False
+        assert resultado.motivo == MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
+        assert resultado.compra is None
+    
+        # Garantía DD02: No debe haberse solicitado pago ni enviado correo
+        assert len(pago.solicitudes) == 0
+>       assert len(correo.enviados) == 0
+                   ^^^^^^^^^^^^^^^
+E       AttributeError: 'CorreoDoble' object has no attribute 'enviados'
+
+01-implementacion/tests/test_c23_rechazo_sin_efectos.py:26: AttributeError
+============================================ short test summary info =============================================
+FAILED 01-implementacion/tests/test_c23_rechazo_sin_efectos.py::test_c23_rechaza_exceso_entradas_sin_efectos_secundarios - AttributeError: 'CorreoDoble' object has no attribute 'enviados'
+======================================== 1 failed, 48 deselected in 0.09s =======================================
+```
+
+**Segunda ejecución — GREEN.**El test pasó de manera directa en verde. La lógica de producción ya contemplaba esta validación en ServicioCompras._motivo_de_rechazo, evaluando que si la cantidad de entradas supera MAXIMO_ENTRADAS (10), se retorna el motivo MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO antes de generar efectos secundarios (cumpliendo con la decisión de diseño DD02). Se ajustó la aserción del test de C23 para verificar sobre la lista interna intentos del doble de correo (CorreoDoble). Salida observada:
+
+```text
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m pytest -k c23 -v
+============================================== test session starts ===============================================
+platform darwin -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony
+collected 49 items / 48 deselected / 1 selected                                                                  
+
+01-implementacion/tests/test_c23_rechazo_sin_efectos.py::test_c23_rechaza_exceso_entradas_sin_efectos_secundariosPASSED [100%]
+
+======================================== 1 passed, 48 deselected in 0.02s ======================================
+```
+
+**Refactor**. Como la validación previa al flujo y la estructura de rechazo ya se encontraban estables en el servicio de compras, no se requirieron modificaciones en el código de producción (servicio_compras.py). Se estructuró y limpió el archivo de pruebas tests/test_c23_rechazo_sin_efectos.py para asegurar que cumple con el estilo y legibilidad del proyecto. La verificación la realizaré luego de terminar con el C24.
+
+## C24 - Redireccion solicitada (20/10/2026)
+
+Entorno: MacOS, Python 3.13.16, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Romeo Facundo Montes (406511).
+
+**Primera ejecución — RED.** Se creó `tests/test_c24_redireccion_solicitada.py` para comprobar que una solicitud válida con pago por tarjeta acepta la operación, solicita la pasarela de pagos y mantiene la compra y el pago en estado pendiente (PENDIENTE y PENDIENTE_PASARELA), sin enviar todavía el correo de confirmación (DD05, A02).
+El test falló inicialmente en la fase Red por dos detalles de integración: primero, el contrato de ResultadoCompra utiliza el atributo url_redireccion en lugar de una propiedad booleana; segundo, al suministrar la forma de pago, se requería utilizar el enumerativo explícito FormaPago.TARJETA en lugar de una cadena de texto para activar el flujo correcto de tarjeta:
+
+```text
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m pytest -k c24 -v
+============================================== test session starts ===============================================
+platform darwin -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony
+collected 49 items / 48 deselected / 1 selected                                                                  
+
+01-implementacion/tests/test_c24_redireccion_solicitada.py::test_c24_redireccion_sin_confirmacion_de_pago FAILED [100%]
+
+==================================================== FAILURES ====================================================
+_________________________________ test_c24_redireccion_sin_confirmacion_de_pago __________________________________
+
+servicio_compras = <ecoharmony.servicio_compras.ServicioCompras object at 0x1083d7230>
+crear_solicitud = <function crear_solicitud.<locals>._crear at 0x1084e45e0>
+pago = <tests.dobles.PagoDoble object at 0x1083d6a50>, correo = <tests.dobles.CorreoDoble object at 0x1083d6f90>
+
+    def test_c24_redireccion_sin_confirmacion_de_pago(
+        servicio_compras, crear_solicitud, pago, correo
+    ):
+        # Preparación: Solicitud válida con pago por tarjeta
+        solicitud = crear_solicitud(forma_pago="tarjeta")
+    
+        # Ejecución
+        resultado = servicio_compras.comprar(solicitud)
+    
+        # Verificación: Se acepta y se solicita la redirección a la pasarela de pago
+        assert resultado.aceptada is True
+>       assert resultado.requiere_redireccion is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ResultadoCompra' object has no attribute 'requiere_redireccion'. Did you mean: 'url_redireccion'?
+
+01-implementacion/tests/test_c24_redireccion_solicitada.py:18: AttributeError
+============================================ short test summary info =============================================
+FAILED 01-implementacion/tests/test_c24_redireccion_solicitada.py::test_c24_redireccion_sin_confirmacion_de_pago - AttributeError: 'ResultadoCompra' object has no attribute 'requiere_redireccion'. Did you mean: 'url_redirecc...
+======================================== 1 failed, 48 deselected in 0.04s ===============================
+```
+
+**Segunda ejecución — GREEN.** El test Tras corregir el test para utilizar FormaPago.TARJETA y verificar la presencia de url_redireccion, la prueba pasó exitosamente en verde. El código de producción (ServicioCompras._iniciar_pago_con_tarjeta) ya se encontraba implementado y gestionaba correctamente la creación de la compra con estados pendientes y la llamada a la pasarela simulada sin disparar correos en esta instancia:
+
+```text
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m pytest -k c24 -v
+============================================== test session starts ===============================================
+platform darwin -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/facumontes/ISW_G7_4K2_2026/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony
+collected 49 items / 48 deselected / 1 selected                                                                  
+
+01-implementacion/tests/test_c24_redireccion_solicitada.py::test_c24_redireccion_sin_confirmacion_de_pago PASSED [100%]
+
+======================================== 1 passed, 48 deselected in 0.03s ======================================
+```
+
+**Refactor.** No se requirieron cambios en el código de producción ya que el flujo de tarjeta y la separación de efectos cumplían con los requerimientos de diseño (DD02, DD05). Se estructuró el archivo de prueba tests/test_c24_redireccion_solicitada.py manteniendo el estilo del proyecto. Verificación final de la suite completa y linters:
+
+```text
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m pytest -q
+.................................................                                                          [100%]
+49 passed in 0.05s
+
+(.venv) facumontes@Mac 06-TP06-TDD-EcoHarmony % python -m ruff check 01-implementacion/tests/test_c23_rechazo_sin_efectos.py 01-implementacion/tests/test_c24_redireccion_solicitada.py      
+All checks passed!
+
+```

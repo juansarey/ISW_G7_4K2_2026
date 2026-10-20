@@ -32,18 +32,18 @@ especificación está en el entregable (páginas 7 a 9).
 | C08 | CA01, A03 | `tests/test_c08_pase_vip.py` | `test_c08_acepta_y_conserva_el_pase_vip` | Green directo |
 | C09 | CA01, A03 | `tests/test_c09_pase_regular.py` | `test_c09_acepta_y_conserva_el_pase_regular` | Terminado |
 | C10 | CA02 | `tests/test_c10_fecha_pasada.py` | `test_c10_rechaza_fecha_anterior_a_la_actual` | Terminado |
-| C11 | CA05 | — | — | Pendiente |
-| C12 | CA07 | — | — | Pendiente |
-| C13 | CA06 | — | — | Pendiente |
-| C14 | CA09 | — | — | Pendiente |
-| C15 | CA01 | — | — | Pendiente |
-| C16 | CA01 | — | — | Pendiente |
-| C17 | CA01 | — | — | Pendiente |
-| C18 | CA01 | — | — | Pendiente |
-| C19 | CA03, A02, A04 | — | — | Pendiente |
-| C20 | CA08, A03 | — | — | Pendiente |
-| C21 | CA04, A04 | — | — | Pendiente |
-| C22 | CA06, DD05 | — | — | Pendiente |
+| C11 | CA05 | `tests/test_c11_parque_cerrado.py` | `test_c11_rechaza_fecha_futura_con_parque_cerrado`, efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C12 | CA07 | `tests/test_c12_maximo_entradas.py` | `test_c12_rechaza_mas_de_diez_entradas`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C13 | CA06 | `tests/test_c13_forma_pago_ausente.py` | `test_c13_rechaza_compra_sin_forma_de_pago_seleccionada` (1 ejecución; sin parametrizar porque falta la forma de pago) | Terminado |
+| C14 | CA09 | `tests/test_c14_usuario_no_registrado.py` | `test_c14_rechaza_compra_de_visitante_sin_registro`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C15 | CA01 | `tests/test_c15_fecha_ausente.py` | `test_c15_rechaza_compra_sin_fecha_de_visita`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C16 | CA01 | `tests/test_c16_edades_incompletas.py` | `test_c16_rechaza_compra_con_edades_incompletas`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C17 | CA01 | `tests/test_c17_tipo_pase_ausente.py` | `test_c17_rechaza_compra_sin_tipo_de_pase`, efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C18 | CA01 | `tests/test_c18_cantidad_ausente.py` | `test_c18_rechaza_compra_sin_cantidad_de_entradas`, efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C19 | CA03, A02, A04 | `tests/test_c19_correo_confirmacion.py` | `test_c19_solicita_correo_y_conserva_compra_y_pago` (efectivo/tarjeta × correo exitoso/fallido); notificación repetida, rechazo sin correo y guardas de transición | Terminado |
+| C20 | CA08, A03 | `tests/test_c20_resumen_compra.py` | `test_c20_informa_resumen_de_compra_confirmada`, efectivo/tarjeta × pase regular/VIP (4 ejecuciones) | Green directo |
+| C21 | CA04, A04 | `tests/test_c21_inicio_pago_tarjeta.py` | `test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo`; `test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela` | Terminado |
+| C22 | CA06, DD05 | `tests/test_c22_efectivo_sin_redireccion.py` | `test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir`, con pago disponible y configurado para fallar (2 ejecuciones) | Green directo |
 | C23 | DD02 | — | — | Pendiente |
 | C24 | DD05, A02 | — | — | Pendiente |
 | C25 | DG01 | — | — | Pendiente |
@@ -53,6 +53,15 @@ especificación está en el entregable (páginas 7 a 9).
 
 C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
 calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
-resultado y en la compra registrada. Ambas variantes de pago reutilizan
-`ServicioCompras` y las fixtures comunes. Los rechazos por fecha pasada (C10),
-parque cerrado (C11) y fecha ausente (C15) siguen pendientes.
+resultado y en la compra registrada. C11 verifica el rechazo de D0 + 2 con el
+calendario inyectado, en efectivo y tarjeta, sin registrar compras ni iniciar
+efectos externos. C12 verifica el rechazo de once entradas con once edades válidas,
+en efectivo y tarjeta. C13 deja la solicitud base intacta salvo la forma de pago,
+que queda sin elegir, y comprueba el rechazo con `FORMA_PAGO_AUSENTE` sin compra
+registrada, redirección, pedido de pago ni correo. C14 usa el visitante de
+referencia marcado como no registrado, con el resto de la solicitud válida, y
+verifica en efectivo y tarjeta el rechazo con `USUARIO_NO_REGISTRADO` sin ningún
+efecto. C15 deja la fecha de visita sin indicar y comprueba el rechazo con
+`FECHA_AUSENTE` en efectivo y tarjeta sin ningún efecto secundario. C16 usa dos
+entradas y una sola edad informada para verificar el rechazo con `EDADES_INCOMPLETAS`
+en ambas formas de pago. C05, C06 y C17 a C28 siguen pendientes.

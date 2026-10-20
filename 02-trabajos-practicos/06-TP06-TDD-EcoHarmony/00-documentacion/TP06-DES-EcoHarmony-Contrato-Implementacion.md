@@ -55,6 +55,11 @@ impresos para representar un rechazo.
 `cantidad_entradas`, `edades`, `tipo_pase`, `forma_pago`, `total` (`Decimal`),
 `estado_compra`, `estado_pago` y `estado_correo`.
 
+En la compra confirmada, el resultado expone cantidad, fecha de visita, tipo de
+pase y total calculado con A03. Para dos entradas el total es `Decimal("20000")`
+con pase regular y `Decimal("30000")` con pase VIP; la forma y el estado de pago
+corresponden a A02 (C20).
+
 ## 4. Motivos de rechazo
 
 | Identificador | Caso | Detectado en |
@@ -90,8 +95,8 @@ cambian un único dato, por lo que no dependen de este orden.
 |---|---|---|---|---|
 | Efectivo aceptado | `CONFIRMADA` | `PENDIENTE_BOLETERIA` | `ENVIADO` | C01, C22 |
 | Tarjeta aceptada, pasarela abierta | `PENDIENTE` | `PENDIENTE_PASARELA` | `NO_SOLICITADO` | C02, C24 |
-| Tarjeta aprobada (*propuesta*) | `CONFIRMADA` | `APROBADO` | `ENVIADO` | C19 |
-| Tarjeta rechazada o cancelada (*propuesta*) | `CANCELADA` | `RECHAZADO` | `NO_SOLICITADO` | A02 |
+| Tarjeta aprobada | `CONFIRMADA` | `APROBADO` | `ENVIADO` o `CORREO_PENDIENTE` | C19 |
+| Tarjeta rechazada o cancelada | `CANCELADA` | `RECHAZADO` | `NO_SOLICITADO` | A02 |
 | Fallo del correo | se conserva | se conserva | `CORREO_PENDIENTE` | C19 |
 | Fallo al iniciar el pago | sin compra confirmada (`aceptada=False`, `ERROR_PAGO`) | — | — | C21 |
 
@@ -131,14 +136,36 @@ class RepositorioCompras(Protocol):
 `ServicioCompras(reloj, calendario, servicio_pago, servicio_correo, repositorio)`
 recibe todas las dependencias en el constructor.
 
-## 7. Operaciones pendientes (*propuesta*)
+## 7. Operaciones de pago y correo
 
-Necesarias para C19 y C24; se confirman al construir esos casos:
+`registrar_resultado_pago` procesa el resultado de la pasarela simulada:
 
 ```python
 ServicioCompras.registrar_resultado_pago(id_compra: str, aprobado: bool) -> ResultadoCompra
 ServicioCompras.reintentar_correo(id_compra: str) -> ResultadoCompra
 ```
+
+Para `registrar_resultado_pago`, `aceptada=True` significa que la notificación se
+procesó; no significa necesariamente que el pago se aprobó. El resultado del pago
+se expresa mediante los estados de la compra. Esta interpretación es propia de
+esta operación y no cambia el significado de `ServicioCompras.comprar`.
+
+La operación solo acepta compras con tarjeta existentes y en estado
+`PENDIENTE` / `PENDIENTE_PASARELA`. Un identificador inexistente, una compra que no
+sea con tarjeta o una transición incompatible produce `ValueError`. La repetición
+de la misma notificación ya procesada es idempotente: no duplica el correo ni
+reinicia el pago; una notificación opuesta a un resultado final produce
+`ValueError`.
+
+Una aprobación confirma la compra y el pago, guarda esos estados y solicita el
+correo una sola vez. Si el servicio lanza `ErrorServicioCorreo`, se conservan la
+compra confirmada y el pago aprobado, y el estado de correo queda
+`CORREO_PENDIENTE`. Repetir la notificación no reintenta el correo; esa recuperación
+explícita corresponde a C30. Un rechazo/cancelación deja la compra
+`CANCELADA` y el pago `RECHAZADO`, sin solicitar correo (A02; C29 mantiene sus
+pruebas propias).
+
+`reintentar_correo` sigue pendiente y se definirá en C30.
 
 ## 8. API web
 

@@ -22,6 +22,7 @@
 | Sacco Rey, Juan Pablo   |  89319 |
 | Salomon Wendler, Thomas | 400501 |
 | Schoninger, Lucas       |  97927 |
+| Steffolani, Nicolas     |  94196 |
 | Tabares, Maximo Samir   | 402064 |
 | Tejeda, Emanuel Jesus   | 401000 |
 | Visintin, Juan Pablo    |  95843 |

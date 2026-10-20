@@ -20,22 +20,41 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C07 — diez entradas | Test agregado; Green directo |
 | C09 — pase regular | Test agregado; Green directo |
 | C10 — fecha pasada | Terminado (rechazo con FECHA_PASADA) |
-| C11–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C11 — parque cerrado | Terminado (2 variantes: efectivo y tarjeta) |
+| C12 — más de diez entradas | Terminado (2 variantes: efectivo y tarjeta) |
+| C13 — forma de pago ausente | Terminado (rechazo con FORMA_PAGO_AUSENTE) |
+| C14 — usuario no registrado | Terminado (2 variantes: efectivo y tarjeta) |
+| C15 — fecha ausente | Terminado (2 variantes: efectivo y tarjeta) |
+| C16 — edades incompletas | Terminado (2 variantes: efectivo y tarjeta) |
+| C17–C18 | Terminados (rechazo por dato ausente) |
+| C19 — correo de confirmación | Terminado (8 tests; éxito, fallo y estados de pago) |
+| C20 — resumen de la compra | Terminado (4 variantes; efectivo/tarjeta y pase regular/VIP) |
+| C21 — inicio del pago con tarjeta | Terminado (2 pruebas; inicio exitoso y fallo de pasarela) |
+| C22 — efectivo sin redirección | Green directo (2 variantes del servicio de pago) |
+| C23–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como las validaciones (C11–C18, C25–C28) todavía no se construyeron, la interfaz
-**acepta** por ahora solicitudes que deberían rechazarse (por ejemplo, once
-entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
-escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se
-completen esos casos. Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
+Como otras validaciones (C23–C28) todavía no se construyeron, la interfaz puede
+aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
+el calendario inyectado, C12 rechaza más de diez entradas, C13 rechaza la compra
+cuando no se eligió forma de pago, C14 la rechaza si el visitante no está
+registrado, C15 si la fecha de visita está ausente y C16 si no se informa la edad
+de cada visitante, siempre antes de registrar nada. Las validaciones se reúnen en
+`ServicioCompras._motivo_de_rechazo`, en el orden del contrato. C19 conserva la
+compra y el pago si falla el correo y procesa el resultado de tarjeta según A02.
+C20 verifica el resumen de dos entradas para D0 + 1 y las tarifas de ambos pases.
+C21 convierte el fallo al iniciar la pasarela en un resultado `ERROR_PAGO` sin
+compra ni URL en el resultado. C22 verifica que el efectivo no invoque la pasarela
+ni produzca una URL de redirección. C23–C28 continúan pendientes.
+Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-14 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
-producción; su evidencia está en el registro TDD. Los rechazos temporales y de
-apertura (C10 y C11) siguen pendientes.
+47 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+producción; C11 y C12 tienen pruebas por efectivo y tarjeta. Los demás casos siguen
+pendientes salvo los indicados como terminados en esta tabla.
 
 ## Instalación
 
@@ -81,6 +100,16 @@ tests/
   test_c04_fecha_futura.py # C04: fecha futura, efectivo y tarjeta
   test_c07_diez_entradas.py # C07: límite máximo aceptado
   test_c08_pase_vip.py      # C08: pase VIP y tarifa
+  test_c11_parque_cerrado.py # C11: rechazo del calendario cerrado
+  test_c12_maximo_entradas.py # C12: rechazo de más de diez entradas
+  test_c13_forma_pago_ausente.py # C13: rechazo sin forma de pago elegida
+  test_c14_usuario_no_registrado.py # C14: rechazo de visitante sin registro
+  test_c15_fecha_ausente.py # C15: rechazo sin fecha de visita
+  test_c16_edades_incompletas.py # C16: rechazo de edades incompletas
+  test_c19_correo_confirmacion.py # C19: correo tras confirmar compra
+  test_c20_resumen_compra.py # C20: resumen de cantidad, fecha, pase, total y pago
+  test_c21_inicio_pago_tarjeta.py # C21: inicio exitoso y fallo de pasarela
+  test_c22_efectivo_sin_redireccion.py # C22: efectivo sin invocar la pasarela
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)

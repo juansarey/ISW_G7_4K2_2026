@@ -1,8 +1,4 @@
-"""C23 — Rechazo por exceso de entradas y ausencia de efectos secundarios (DD02).
-
-Se realiza una solicitud con 11 entradas (superando el límite de 10) para 
-comprobar el rechazo previo y garantizar que no se invoquen servicios externos.
-"""
+"""C23 — Rechazo por exceso de entradas y ausencia de efectos secundarios (DD02)."""
 
 from ecoharmony.modelos import MotivoRechazo
 
@@ -18,9 +14,9 @@ def test_c23_rechaza_exceso_entradas_sin_efectos_secundarios(
 
     # Verificación: Se rechaza y se indica el motivo correspondiente
     assert resultado.aceptada is False
-    assert resultado.motivo == MotivoRechazo.CANTIDAD_EXCEDIDA  # Ajustar según tu Enum si difiere
+    assert resultado.motivo == MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
     assert resultado.compra is None
 
     # Garantía DD02: No debe haberse solicitado pago ni enviado correo
-    pago.assert_not_called()
-    correo.enviar.assert_not_called()
+    assert len(pago.solicitudes) == 0
+    assert len(correo.intentos) == 0
