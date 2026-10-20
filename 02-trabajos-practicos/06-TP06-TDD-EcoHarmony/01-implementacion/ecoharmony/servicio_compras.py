@@ -62,10 +62,14 @@ class ServicioCompras:
         if not self._calendario.esta_abierto(fecha):
             return MotivoRechazo.PARQUE_CERRADO
         cantidad = solicitud.cantidad_entradas
-        if cantidad is not None and cantidad > MAXIMO_ENTRADAS:
+        if cantidad is None:
+            return MotivoRechazo.CANTIDAD_AUSENTE
+        if cantidad > MAXIMO_ENTRADAS:
             return MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
-        if cantidad is not None and len(solicitud.edades) < cantidad:
+        if len(solicitud.edades) < cantidad:
             return MotivoRechazo.EDADES_INCOMPLETAS
+        if solicitud.tipo_pase is None:
+            return MotivoRechazo.TIPO_PASE_AUSENTE
         if solicitud.forma_pago is None:
             return MotivoRechazo.FORMA_PAGO_AUSENTE
         return None

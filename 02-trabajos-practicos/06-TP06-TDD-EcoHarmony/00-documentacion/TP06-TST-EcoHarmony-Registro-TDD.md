@@ -729,3 +729,246 @@ $ python -m pytest -k "c10 or c11 or c12 or c13 or c14 or c15 or c16" -q
 ```
 
 **Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py`, `tests/test_c15_fecha_ausente.py` y `tests/test_c16_edades_incompletas.py`: `All checks passed!` y `3 files already formatted`. En el proyecto completo `ruff check .` continúa reportando únicamente los dos avisos `W292` preexistentes en `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py` fuera del alcance de estos casos.
+
+## C17 — Tipo de pase ausente (20/10/2026)
+
+Entorno: Mac, Python 3.14.5, pytest 9.1.1, Ruff 0.17.1.
+Responsable: Santiago Adaime (91316).
+
+**Red.** Se creó `tests/test_c17_tipo_pase_ausente.py`, con una variante para
+efectivo y otra para tarjeta (CA01). Cada una deja el tipo de pase en `None` y
+verifica el rechazo con `TIPO_PASE_AUSENTE` y la ausencia de compra registrada,
+solicitud de pago y correo. Fallan porque `ServicioCompras` todavía no valida el
+tipo de pase:
+
+```text
+$ python -m pytest -k c17 -v --tb=short
+<<< ❯ cp ~/Downloads/test_c17_tipo_pase_ausente.py tests/
+python -m pytest -k c17 -v --tb=short
+========================================================================================== test session starts ==========================================================================================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion
+configfile: pyproject.toml
+testpaths: tests
+collected 29 items / 27 deselected / 2 selected                                                                                                                                                         
+
+tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] FAILED                                                                                          [ 50%]
+tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] FAILED                                                                                           [100%]
+
+=============================================================================================== FAILURES ================================================================================================
+_____________________________________________________________________ test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] ______________________________________________________________________
+tests/test_c17_tipo_pase_ausente.py:29: in test_c17_rechaza_compra_sin_tipo_de_pase
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:46: in comprar
+    return self._confirmar_en_efectivo(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:75: in _confirmar_en_efectivo
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:110: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: None
+______________________________________________________________________ test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] ______________________________________________________________________
+tests/test_c17_tipo_pase_ausente.py:29: in test_c17_rechaza_compra_sin_tipo_de_pase
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:45: in comprar
+    return self._iniciar_pago_con_tarjeta(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:85: in _iniciar_pago_con_tarjeta
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:110: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: None
+======================================================================================== short test summary info ========================================================================================
+FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] - KeyError: None
+FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] - KeyError: None
+=================================================================================== 2 failed, 27 deselected in 0.10s ====================================================================================
+ >>>
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, después del chequeo
+de edades y antes del de forma de pago (orden del contrato §4), el rechazo con
+`MotivoRechazo.TIPO_PASE_AUSENTE` cuando `solicitud.tipo_pase is None`.
+
+```text
+$ python -m pytest -q
+<<< ❯ python -m pytest -q
+.............................                                                                                                                                                                     [100%]
+29 passed in 0.04s
+ >>>
+```
+
+**Refactor.**  Sin cambios
+
+
+
+## C18 — Cantidad de entradas ausente (20/10/2026)
+
+Entorno: <<< igual que C17, o indicar las diferencias >>>.
+Responsable: Santiago Adaime (91316).
+
+**Red.** Se creó `tests/test_c18_cantidad_ausente.py`, con una variante para
+efectivo y otra para tarjeta (CA01). Cada una deja la cantidad en `None`, conserva
+las edades de la solicitud base y verifica el rechazo con `CANTIDAD_AUSENTE` y la
+ausencia de compra registrada, solicitud de pago y correo. Fallan porque
+`ServicioCompras` todavía no valida la cantidad:
+
+```text
+$ python -m pytest -k c18 -v --tb=short
+<<< ❯ cp ~/Downloads/test_c18_cantidad_ausente.py tests/
+python -m pytest -k c18 -v --tb=short
+========================================================================================== test session starts ==========================================================================================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion
+configfile: pyproject.toml
+testpaths: tests
+collected 31 items / 29 deselected / 2 selected                                                                                                                                                         
+
+tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] FAILED                                                                                   [ 50%]
+tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] FAILED                                                                                    [100%]
+
+=============================================================================================== FAILURES ================================================================================================
+_________________________________________________________________ test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] __________________________________________________________________
+tests/test_c18_cantidad_ausente.py:29: in test_c18_rechaza_compra_sin_cantidad_de_entradas
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:46: in comprar
+    return self._confirmar_en_efectivo(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:77: in _confirmar_en_efectivo
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:112: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+__________________________________________________________________ test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] __________________________________________________________________
+tests/test_c18_cantidad_ausente.py:29: in test_c18_rechaza_compra_sin_cantidad_de_entradas
+    resultado = servicio_compras.comprar(solicitud)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:45: in comprar
+    return self._iniciar_pago_con_tarjeta(solicitud)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/servicio_compras.py:87: in _iniciar_pago_con_tarjeta
+    compra = self._crear_compra(
+ecoharmony/servicio_compras.py:112: in _crear_compra
+    total=calcular_total(solicitud.cantidad_entradas, solicitud.tipo_pase),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ecoharmony/tarifas.py:17: in calcular_total
+    return TARIFAS_POR_PASE[tipo_pase] * cantidad_entradas
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+======================================================================================== short test summary info ========================================================================================
+FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
+=================================================================================== 2 failed, 29 deselected in 0.10s ====================================================================================
+~ >>>
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, al inicio del bloque
+de cantidad y antes del chequeo del máximo, el rechazo con
+`MotivoRechazo.CANTIDAD_AUSENTE` cuando `cantidad is None`.
+
+```text
+$ python -m pytest -q
+<<< ❯ python -m pytest -q
+...............................                                                                                                                                                                   [100%]
+31 passed in 0.04s >>>
+```
+
+**Refactor.** Con `None` descartado antes, se quitó la condición
+`cantidad is not None and` de los chequeos de `CANTIDAD_EXCEDE_MAXIMO` (C12) y
+`EDADES_INCOMPLETAS` (C16), que había quedado como protección provisoria. El
+comportamiento no cambia. Verificación posterior:
+
+```text
+$ python -m pytest -q
+<<< ❯ python -m pytest -q
+...............................                                                                                                                                                                   [100%]
+31 passed in 0.04s
+ >>>
+$ python -m ruff check .
+<<< ❯ python -m ruff check .
+W292 [*] No newline at end of file
+  --> tests/test_c05_una_entrada.py:18:51
+   |
+16 |     assert resultado.motivo is None
+17 |     assert resultado.compra is not None
+18 |     assert resultado.compra.cantidad_entradas == 1
+   |                                                   ^
+help: Add trailing newline
+   |
+17 |     assert resultado.compra is not None
+   -     assert resultado.compra.cantidad_entradas == 1
+18 +     assert resultado.compra.cantidad_entradas == 1
+   |
+
+W292 [*] No newline at end of file
+  --> tests/test_c06_nueve_entradas.py:20:45
+   |
+18 |     assert resultado.compra is not None
+19 |     assert resultado.compra.cantidad_entradas == 9
+20 |     assert resultado.compra.edades == edades
+   |                                             ^
+help: Add trailing newline
+   |
+19 |     assert resultado.compra.cantidad_entradas == 9
+   -     assert resultado.compra.edades == edades
+20 +     assert resultado.compra.edades == edades
+   |
+
+Found 2 errors.
+[*] 2 fixable with `--fix`.
+ >>>
+$ python -m ruff format --check .
+<<< ❯ python -m ruff format --check .
+unformatted: File would be reformatted
+  --> tests/test_c05_una_entrada.py:18:51
+   |
+17 |     assert resultado.compra is not None
+   -     assert resultado.compra.cantidad_entradas == 1
+18 +     assert resultado.compra.cantidad_entradas == 1
+   |
+
+unformatted: File would be reformatted
+  --> tests/test_c06_nueve_entradas.py:20:45
+   |
+19 |     assert resultado.compra.cantidad_entradas == 9
+   -     assert resultado.compra.edades == edades
+20 +     assert resultado.compra.edades == edades
+   |
+
+2 files would be reformatted, 32 files already formatted
+❯ python -m ruff format --check .
+unformatted: File would be reformatted
+  --> tests/test_c05_una_entrada.py:18:51
+   |
+17 |     assert resultado.compra is not None
+   -     assert resultado.compra.cantidad_entradas == 1
+18 +     assert resultado.compra.cantidad_entradas == 1
+   |
+
+unformatted: File would be reformatted
+  --> tests/test_c06_nueve_entradas.py:20:45
+   |
+19 |     assert resultado.compra.cantidad_entradas == 9
+   -     assert resultado.compra.edades == edades
+20 +     assert resultado.compra.edades == edades
+   |
+
+2 files would be reformatted, 32 files already formatted
+ >>>
+```
