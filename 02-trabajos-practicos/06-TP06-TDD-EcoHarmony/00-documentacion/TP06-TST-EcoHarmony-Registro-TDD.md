@@ -415,3 +415,175 @@ y los tests C11/C12. Los controles globales informan dos problemas preexistentes
 ambos `W292` por falta de salto de línea final en `test_c05_una_entrada.py` y
 `test_c06_nueve_entradas.py`; `ruff format --check .` señala únicamente esos mismos
 dos archivos. No se modificaron porque C05/C06 están fuera del alcance.
+
+## C13 — Forma de pago ausente (19/10/2026)
+
+Responsable: Tomas Zengaro (403344).
+
+**Entorno.** Entorno virtual propio en `01-implementacion/.venv` (excluido por
+`.gitignore`), con las dependencias de `requirements.txt`: Python 3.14.6,
+pytest 9.1.1 y Ruff 0.17.1, en Windows 11. En las salidas copiadas se omiten las
+líneas de encabezado que solo muestran la ruta local del equipo.
+
+**Base previa.** Antes de escribir el test, la suite existente pasó completa:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+20 passed in 0.09s
+```
+
+**Red.** Se creó `tests/test_c13_forma_pago_ausente.py` con un único test,
+`test_c13_rechaza_compra_sin_forma_de_pago_seleccionada`. La solicitud se arma con
+`crear_solicitud(forma_pago=None)`, de modo que el resto de los datos de la
+solicitud base sigue siendo válido y la omisión de la forma de pago es la única
+causa posible de rechazo. No se parametrizó por efectivo y tarjeta: justamente es
+el dato que falta. Además del motivo, el test exige que no haya compra registrada,
+redirección, pedido de pago ni correo.
+
+Al ejecutarlo sin tocar producción falló como se esperaba. El servicio no
+distinguía la ausencia: todo lo que no era tarjeta seguía el camino de efectivo,
+así que la compra quedó confirmada con `forma_pago=None`, pago pendiente en
+boletería y correo enviado.
+
+```text
+$ .venv\Scripts\python -m pytest -k c13 -v --tb=short
+collecting ... collected 21 items / 20 deselected / 1 selected
+
+tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada FAILED [100%]
+
+================================== FAILURES ===================================
+___________ test_c13_rechaza_compra_sin_forma_de_pago_seleccionada ____________
+tests\test_c13_forma_pago_ausente.py:27: in test_c13_rechaza_compra_sin_forma_de_pago_seleccionada
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='03faa7822a80463ab03bda72d3edd2b2', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=None, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+=========================== short test summary info ===========================
+FAILED tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada
+====================== 1 failed, 20 deselected in 0.18s =======================
+```
+
+**Green.** En `ServicioCompras.comprar` se agregó una guarda que devuelve
+`MotivoRechazo.FORMA_PAGO_AUSENTE` cuando `forma_pago` es `None`. Se ubicó después
+de la validación de cantidad y antes de elegir entre tarjeta y efectivo, como pide
+el orden del contrato (§4), por lo que ningún camino de pago llega a ejecutarse.
+
+```text
+$ .venv\Scripts\python -m pytest -k c13 -v --tb=short
+collecting ... collected 21 items / 20 deselected / 1 selected
+
+tests/test_c13_forma_pago_ausente.py::test_c13_rechaza_compra_sin_forma_de_pago_seleccionada PASSED [100%]
+
+====================== 1 passed, 20 deselected in 0.11s =======================
+$ .venv\Scripts\python -m pytest -q
+.....................                                                    [100%]
+21 passed in 0.09s
+```
+
+**Refactor.** Se evaluó y no se aplicó. La guarda nueva tiene la misma forma que
+las de fecha y cantidad y deja explícita una decisión que antes estaba implícita
+(el `else` del efectivo absorbía cualquier valor que no fuera tarjeta). Con cuatro
+guardas cortas `comprar` todavía se lee de corrido; extraerlas ahora sería mover
+código sin una ganancia clara. Se vuelve a evaluar al incorporar C14.
+
+**Verificación de Ruff.** `ruff check` y `ruff format --check` sobre
+`ecoharmony/servicio_compras.py` y `tests/test_c13_forma_pago_ausente.py`
+informaron `All checks passed!` y `2 files already formatted`. Sobre todo el
+proyecto (`.`) persisten solo los dos problemas preexistentes ya registrados en C12
+(`W292` en `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py`, que también
+son los dos archivos que `ruff format --check .` reformatearía). No se tocaron por
+estar fuera del alcance de este caso.
+
+## C14 — Usuario no registrado (19/10/2026)
+
+Responsable: Tomas Zengaro (403344). Mismo entorno que C13 (Python 3.14.6,
+pytest 9.1.1, Ruff 0.17.1, Windows 11); también se omiten las líneas de
+encabezado con la ruta local.
+
+**Base previa.** Con C13 ya integrado, la suite pasó completa antes de empezar:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+21 passed in 0.09s
+```
+
+**Red.** Se creó `tests/test_c14_usuario_no_registrado.py` con el test
+`test_c14_rechaza_compra_de_visitante_sin_registro`, parametrizado con efectivo y
+tarjeta. El visitante se obtiene con `replace(usuario_registrado, registrado=False)`:
+conserva el nombre `visitante01` y el correo de referencia, así que la marca de
+registro es lo único que difiere de la solicitud base. No se agregó una fixture a
+`conftest.py` porque solo este caso usa ese visitante. Las dos variantes se
+ejecutaron antes de cambiar producción y fallaron porque el servicio nunca miraba
+el registro: en efectivo la compra quedó confirmada y con correo enviado, y con
+tarjeta quedó registrada como pendiente y se abrió la pasarela.
+
+```text
+$ .venv\Scripts\python -m pytest -k c14 -v --tb=short
+collecting ... collected 23 items / 21 deselected / 2 selected
+
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] FAILED [100%]
+
+================================== FAILURES ===================================
+____ test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] ____
+tests\test_c14_usuario_no_registrado.py:38: in test_c14_rechaza_compra_de_visitante_sin_registro
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='e54ae90e08b54005b5d015b5a9713f9f', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=False), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+____ test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] _____
+tests\test_c14_usuario_no_registrado.py:38: in test_c14_rechaza_compra_de_visitante_sin_registro
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='a55e048ec907409da7e0d4dd72507e13', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=False), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/a55e048ec907409da7e0d4dd72507e13').aceptada
+=========================== short test summary info ===========================
+FAILED tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO]
+FAILED tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA]
+====================== 2 failed, 21 deselected in 0.16s =======================
+```
+
+**Green.** Se agregó al comienzo de `ServicioCompras.comprar` una guarda que
+devuelve `MotivoRechazo.USUARIO_NO_REGISTRADO` si `solicitud.usuario.registrado`
+es falso. Va antes de la fecha, la cantidad y la forma de pago porque el usuario
+es el primer punto del orden del contrato (§4), y por eso tampoco llegan a
+consultarse el reloj ni el calendario.
+
+```text
+$ .venv\Scripts\python -m pytest -k c14 -v --tb=short
+collecting ... collected 23 items / 21 deselected / 2 selected
+
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c14_usuario_no_registrado.py::test_c14_rechaza_compra_de_visitante_sin_registro[FormaPago.TARJETA] PASSED [100%]
+
+====================== 2 passed, 21 deselected in 0.10s =======================
+$ .venv\Scripts\python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.11s
+```
+
+**Refactor.** Esta vez sí se aplicó. Con la guarda de C14, `comprar` acumulaba
+cinco bloques que solo cambiaban el motivo y repetían la construcción de
+`ResultadoCompra(aceptada=False, ...)`, mezclando la validación con la coordinación
+del pago. Se extrajo el método privado `_motivo_de_rechazo(solicitud)`, que
+devuelve el primer `MotivoRechazo` en el orden del contrato o `None`, y `comprar`
+quedó en dos pasos: si hay motivo arma el rechazo en un único lugar; si no, despacha
+a tarjeta o efectivo. Las condiciones y su orden son los mismos; solo se nombró
+`fecha` para no repetir `solicitud.fecha_visita`. Las validaciones pendientes
+(C15–C18) pueden sumarse ahí como una línea más sin tocar la parte de pago. No
+cambia la interfaz pública ni el contrato. Tras el cambio se repitió la suite y,
+por separado, los casos de rechazo ya existentes:
+
+```text
+$ .venv\Scripts\python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.10s
+$ .venv\Scripts\python -m pytest -k "c10 or c11 or c12 or c13 or c14" -q
+........                                                                 [100%]
+8 passed, 15 deselected in 0.08s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py`,
+`tests/test_c13_forma_pago_ausente.py` y `tests/test_c14_usuario_no_registrado.py`:
+`All checks passed!` y `3 files already formatted`. En el proyecto completo
+`ruff check .` sigue mostrando únicamente los dos `W292` preexistentes de
+`test_c05_una_entrada.py` y `test_c06_nueve_entradas.py`, y `ruff format --check .`
+informa `2 files would be reformatted, 28 files already formatted` por esos mismos
+archivos, que quedan fuera del alcance de C14.

@@ -18,8 +18,8 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C10 | Fecha pasada | Máximo Samir Tabares (402064) | C01 | Terminado |
 | C11 | Parque cerrado | Martina Lenta (95294) | C01 | Terminado |
 | C12 | Más de diez entradas | Martina Lenta (95294) | C01 | Terminado |
-| C13 | Forma de pago ausente | Por asignar | C01 | Pendiente |
-| C14 | Usuario no registrado | Por asignar | C01 | Pendiente |
+| C13 | Forma de pago ausente | Tomas Zengaro (403344) | C01 | Terminado |
+| C14 | Usuario no registrado | Tomas Zengaro (403344) | C01 | Terminado |
 | C15 | Fecha ausente | Por asignar | C01 | Pendiente |
 | C16 | Edades incompletas | Por asignar | C01 | Pendiente |
 | C17 | Tipo de pase ausente | Por asignar | C01 | Pendiente |

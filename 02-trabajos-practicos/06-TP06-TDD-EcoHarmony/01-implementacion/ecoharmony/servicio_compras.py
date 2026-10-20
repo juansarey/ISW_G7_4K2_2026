@@ -38,24 +38,33 @@ class ServicioCompras:
         self._repositorio = repositorio
 
     def comprar(self, solicitud: SolicitudCompra) -> ResultadoCompra:
-        if (
-            solicitud.fecha_visita is not None
-            and solicitud.fecha_visita < self._reloj.hoy()
-        ):
-            return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.FECHA_PASADA)
-        if solicitud.fecha_visita is not None and not self._calendario.esta_abierto(
-            solicitud.fecha_visita
-        ):
-            return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.PARQUE_CERRADO)
-        cantidad = solicitud.cantidad_entradas
-        if cantidad is not None and cantidad > MAXIMO_ENTRADAS:
-            return ResultadoCompra(
-                aceptada=False,
-                motivo=MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO,
-            )
+        motivo = self._motivo_de_rechazo(solicitud)
+        if motivo is not None:
+            return ResultadoCompra(aceptada=False, motivo=motivo)
         if solicitud.forma_pago == FormaPago.TARJETA:
             return self._iniciar_pago_con_tarjeta(solicitud)
         return self._confirmar_en_efectivo(solicitud)
+
+    def _motivo_de_rechazo(self, solicitud: SolicitudCompra) -> MotivoRechazo | None:
+        """Primer motivo que impide la compra, o ``None`` si la solicitud es válida.
+
+        Respeta el orden del contrato (§4): usuario, fecha, cantidad, edades, tipo
+        de pase y forma de pago. No produce efectos: se consulta antes de registrar
+        la compra, iniciar el pago o enviar el correo.
+        """
+        if not solicitud.usuario.registrado:
+            return MotivoRechazo.USUARIO_NO_REGISTRADO
+        fecha = solicitud.fecha_visita
+        if fecha is not None and fecha < self._reloj.hoy():
+            return MotivoRechazo.FECHA_PASADA
+        if fecha is not None and not self._calendario.esta_abierto(fecha):
+            return MotivoRechazo.PARQUE_CERRADO
+        cantidad = solicitud.cantidad_entradas
+        if cantidad is not None and cantidad > MAXIMO_ENTRADAS:
+            return MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
+        if solicitud.forma_pago is None:
+            return MotivoRechazo.FORMA_PAGO_AUSENTE
+        return None
 
     def _confirmar_en_efectivo(self, solicitud: SolicitudCompra) -> ResultadoCompra:
         """A02: la compra queda confirmada y el pago se hace en boletería."""

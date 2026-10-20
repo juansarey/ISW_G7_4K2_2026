@@ -34,8 +34,8 @@ especificación está en el entregable (páginas 7 a 9).
 | C10 | CA02 | `tests/test_c10_fecha_pasada.py` | `test_c10_rechaza_fecha_anterior_a_la_actual` | Terminado |
 | C11 | CA05 | `tests/test_c11_parque_cerrado.py` | `test_c11_rechaza_fecha_futura_con_parque_cerrado`, efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C12 | CA07 | `tests/test_c12_maximo_entradas.py` | `test_c12_rechaza_mas_de_diez_entradas`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
-| C13 | CA06 | — | — | Pendiente |
-| C14 | CA09 | — | — | Pendiente |
+| C13 | CA06 | `tests/test_c13_forma_pago_ausente.py` | `test_c13_rechaza_compra_sin_forma_de_pago_seleccionada` (1 ejecución; sin parametrizar porque falta la forma de pago) | Terminado |
+| C14 | CA09 | `tests/test_c14_usuario_no_registrado.py` | `test_c14_rechaza_compra_de_visitante_sin_registro`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C15 | CA01 | — | — | Pendiente |
 | C16 | CA01 | — | — | Pendiente |
 | C17 | CA01 | — | — | Pendiente |
@@ -56,4 +56,9 @@ calendario preparado, que la solicitud se acepta y que la fecha se conserva en e
 resultado y en la compra registrada. C11 verifica el rechazo de D0 + 2 con el
 calendario inyectado, en efectivo y tarjeta, sin registrar compras ni iniciar
 efectos externos. C12 verifica el rechazo de once entradas con once edades válidas,
-en efectivo y tarjeta. C15 sigue pendiente.
+en efectivo y tarjeta. C13 deja la solicitud base intacta salvo la forma de pago,
+que queda sin elegir, y comprueba el rechazo con `FORMA_PAGO_AUSENTE` sin compra
+registrada, redirección, pedido de pago ni correo. C14 usa el visitante de
+referencia marcado como no registrado, con el resto de la solicitud válida, y
+verifica en efectivo y tarjeta el rechazo con `USUARIO_NO_REGISTRADO` sin ningún
+efecto. C05, C06 y C15 a C28 siguen pendientes.
