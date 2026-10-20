@@ -197,3 +197,36 @@ Los casos C03 y C04 comprueban aceptación bajo las precondiciones de apertura
 preparadas. Los rechazos por fecha pasada, parque cerrado y fecha ausente siguen
 pendientes en C10, C11 y C15. No se ejecutaron pruebas de navegador: el cambio
 agrega pruebas de la lógica compartida y documentación.
+
+## C07 y C08 — Máximo de entradas y pase VIP (19/10/2026)
+
+Ejecuciones observadas en Windows con Python 3.12.2 y pytest 9.1.1. Las pruebas
+se escribieron en `tests/test_c07_diez_entradas.py` y
+`tests/test_c08_pase_vip.py`.
+
+**Primera ejecución (Green directo).** C07 comprueba la aceptación de diez
+entradas, la conservación de cantidad y edades y el total regular de $100.000.
+C08 comprueba la aceptación y conservación del pase VIP y el total de $30.000
+para las dos entradas de la solicitud base. Ambas pruebas pasaron sin cambios en
+código de producción:
+
+```text
+$ python -m pytest -k 'c07 or c08' -v --tb=short
+tests/test_c07_diez_entradas.py::test_c07_acepta_el_maximo_de_diez_entradas PASSED [ 50%]
+tests/test_c08_pase_vip.py::test_c08_acepta_y_conserva_el_pase_vip PASSED [100%]
+====================== 2 passed, 12 deselected in 0.14s =======================
+```
+
+**Verificación.** La suite completa pasó con 14 tests. Ruff y formato pasan
+para ambos archivos nuevos. La ejecución global de Ruff todavía señala dos
+problemas preexistentes de salto de línea final en los tests C05 y C06; no se
+modificaron porque son ajenos a estos casos.
+
+```text
+$ python -m pytest -q
+14 passed in 0.07s
+$ python -m ruff check tests/test_c07_diez_entradas.py tests/test_c08_pase_vip.py
+All checks passed!
+$ python -m ruff format --check tests/test_c07_diez_entradas.py tests/test_c08_pase_vip.py
+2 files already formatted
+```

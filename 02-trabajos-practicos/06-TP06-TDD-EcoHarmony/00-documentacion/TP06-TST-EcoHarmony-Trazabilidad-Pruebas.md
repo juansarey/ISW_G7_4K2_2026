@@ -28,8 +28,8 @@ especificación está en el entregable (páginas 7 a 9).
 | C04 | CA02, CA05 | `tests/test_c04_fecha_futura.py` | `test_c04_acepta_fecha_futura_con_parque_abierto`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C05 | CA07, A03 | — | — | Pendiente |
 | C06 | CA07, A03 | — | — | Pendiente |
-| C07 | CA07, A03 | — | — | Pendiente |
-| C08 | CA01, A03 | — | — | Pendiente |
+| C07 | CA07, A03 | `tests/test_c07_diez_entradas.py` | `test_c07_acepta_el_maximo_de_diez_entradas` | Green directo |
+| C08 | CA01, A03 | `tests/test_c08_pase_vip.py` | `test_c08_acepta_y_conserva_el_pase_vip` | Green directo |
 | C09 | CA01, A03 | — | — | Pendiente |
 | C10 | CA02 | — | — | Pendiente |
 | C11 | CA05 | — | — | Pendiente |

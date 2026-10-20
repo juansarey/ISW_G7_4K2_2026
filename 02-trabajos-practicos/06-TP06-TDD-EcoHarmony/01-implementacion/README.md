@@ -16,7 +16,10 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C02 — compra válida con tarjeta | Terminado (2 tests) |
 | C03 — fecha actual con parque abierto | Terminado (2 variantes: efectivo y tarjeta) |
 | C04 — fecha futura con parque abierto | Terminado (2 variantes: efectivo y tarjeta) |
-| C05–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C05–C06 | Pendientes |
+| C07 — diez entradas | Test agregado; Green directo |
+| C08 — pase VIP | Test agregado; Green directo |
+| C09–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
 Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la interfaz
@@ -29,7 +32,9 @@ C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conser
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-10 pruebas. Los rechazos temporales y de apertura (C10 y C11) siguen pendientes.
+14 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+producción; su evidencia está en el registro TDD. Los rechazos temporales y de
+apertura (C10 y C11) siguen pendientes.
 
 ## Instalación
 
@@ -73,6 +78,8 @@ tests/
   test_c02_*.py         # C02
   test_c03_fecha_actual.py # C03: fecha actual, efectivo y tarjeta
   test_c04_fecha_futura.py # C04: fecha futura, efectivo y tarjeta
+  test_c07_diez_entradas.py # C07: límite máximo aceptado
+  test_c08_pase_vip.py      # C08: pase VIP y tarifa
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)
