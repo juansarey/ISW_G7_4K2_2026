@@ -26,25 +26,29 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C14 — usuario no registrado | Terminado (2 variantes: efectivo y tarjeta) |
 | C15 — fecha ausente | Terminado (2 variantes: efectivo y tarjeta) |
 | C16 — edades incompletas | Terminado (2 variantes: efectivo y tarjeta) |
-| C17–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C17–C18 | Terminados (rechazo por dato ausente) |
+| C19 — correo de confirmación | Terminado (8 tests; éxito, fallo y estados de pago) |
+| C20 — resumen de la compra | Terminado (4 variantes; efectivo/tarjeta y pase regular/VIP) |
+| C21–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como otras validaciones (C17–C18, C23, C25–C28) todavía no se construyeron, la
-interfaz puede aceptar solicitudes que deberían rechazarse, y una solicitud con
-datos ausentes devuelve un error del servidor. C11 rechaza fechas cerradas usando
+Como otras validaciones (C21–C28) todavía no se construyeron, la interfaz puede
+aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
 el calendario inyectado, C12 rechaza más de diez entradas, C13 rechaza la compra
 cuando no se eligió forma de pago, C14 la rechaza si el visitante no está
 registrado, C15 si la fecha de visita está ausente y C16 si no se informa la edad
 de cada visitante, siempre antes de registrar nada. Las validaciones se reúnen en
-`ServicioCompras._motivo_de_rechazo`, en el orden del contrato. C23 continúa
-pendiente.
+`ServicioCompras._motivo_de_rechazo`, en el orden del contrato. C19 conserva la
+compra y el pago si falla el correo y procesa el resultado de tarjeta según A02.
+C20 verifica el resumen de dos entradas para D0 + 1 y las tarifas de ambos pases.
+C21–C28 continúan pendientes.
 Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-27 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+43 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
 producción; C11 y C12 tienen pruebas por efectivo y tarjeta. Los demás casos siguen
 pendientes salvo los indicados como terminados en esta tabla.
 
@@ -98,6 +102,8 @@ tests/
   test_c14_usuario_no_registrado.py # C14: rechazo de visitante sin registro
   test_c15_fecha_ausente.py # C15: rechazo sin fecha de visita
   test_c16_edades_incompletas.py # C16: rechazo de edades incompletas
+  test_c19_correo_confirmacion.py # C19: correo tras confirmar compra
+  test_c20_resumen_compra.py # C20: resumen de cantidad, fecha, pase, total y pago
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)

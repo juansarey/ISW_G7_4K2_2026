@@ -38,10 +38,10 @@ especificación está en el entregable (páginas 7 a 9).
 | C14 | CA09 | `tests/test_c14_usuario_no_registrado.py` | `test_c14_rechaza_compra_de_visitante_sin_registro`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C15 | CA01 | `tests/test_c15_fecha_ausente.py` | `test_c15_rechaza_compra_sin_fecha_de_visita`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C16 | CA01 | `tests/test_c16_edades_incompletas.py` | `test_c16_rechaza_compra_con_edades_incompletas`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
-| C17 | CA01 | — | — | Pendiente |
-| C18 | CA01 | — | — | Pendiente |
-| C19 | CA03, A02, A04 | — | — | Pendiente |
-| C20 | CA08, A03 | — | — | Pendiente |
+| C17 | CA01 | `tests/test_c17_tipo_pase_ausente.py` | `test_c17_rechaza_compra_sin_tipo_de_pase`, efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C18 | CA01 | `tests/test_c18_cantidad_ausente.py` | `test_c18_rechaza_compra_sin_cantidad_de_entradas`, efectivo y tarjeta (2 ejecuciones) | Terminado |
+| C19 | CA03, A02, A04 | `tests/test_c19_correo_confirmacion.py` | `test_c19_solicita_correo_y_conserva_compra_y_pago` (efectivo/tarjeta × correo exitoso/fallido); notificación repetida, rechazo sin correo y guardas de transición | Terminado |
+| C20 | CA08, A03 | `tests/test_c20_resumen_compra.py` | `test_c20_informa_resumen_de_compra_confirmada`, efectivo/tarjeta × pase regular/VIP (4 ejecuciones) | Green directo |
 | C21 | CA04, A04 | — | — | Pendiente |
 | C22 | CA06, DD05 | — | — | Pendiente |
 | C23 | DD02 | — | — | Pendiente |

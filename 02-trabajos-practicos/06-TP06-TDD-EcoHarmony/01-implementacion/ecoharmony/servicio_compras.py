@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from ecoharmony.dependencias import (
     Calendario,
+    ErrorServicioCorreo,
     Reloj,
     RepositorioCompras,
     ServicioCorreo,
@@ -75,13 +76,60 @@ class ServicioCompras:
         return None
 
     def _confirmar_en_efectivo(self, solicitud: SolicitudCompra) -> ResultadoCompra:
-        """A02: la compra queda confirmada y el pago se hace en boletería."""
+        """Confirma la compra; un fallo de correo no modifica compra ni pago."""
         compra = self._crear_compra(
             solicitud, EstadoCompra.CONFIRMADA, EstadoPago.PENDIENTE_BOLETERIA
         )
         self._repositorio.guardar(compra)
-        self._servicio_correo.enviar_confirmacion(compra)
-        compra.estado_correo = EstadoCorreo.ENVIADO
+        self._solicitar_correo_confirmacion(compra)
+        return ResultadoCompra(aceptada=True, compra=compra)
+
+    def _solicitar_correo_confirmacion(self, compra: Compra) -> None:
+        """Conserva la compra ante un fallo específico del correo (A04)."""
+        try:
+            self._servicio_correo.enviar_confirmacion(compra)
+        except ErrorServicioCorreo:
+            compra.estado_correo = EstadoCorreo.CORREO_PENDIENTE
+        else:
+            compra.estado_correo = EstadoCorreo.ENVIADO
+
+        self._repositorio.guardar(compra)
+
+    def registrar_resultado_pago(
+        self, id_compra: str, aprobado: bool
+    ) -> ResultadoCompra:
+        """Procesa una notificación simulada según A02.
+
+        Aceptada indica que se procesó la notificación; los estados informan
+        el resultado del pago.
+        """
+        compra = self._repositorio.obtener(id_compra)
+        if compra is None:
+            raise ValueError("Compra inexistente.")
+
+        if compra.forma_pago != FormaPago.TARJETA:
+            raise ValueError("La compra no corresponde a un pago con tarjeta.")
+
+        estado_destino = EstadoCompra.CONFIRMADA if aprobado else EstadoCompra.CANCELADA
+        pago_destino = EstadoPago.APROBADO if aprobado else EstadoPago.RECHAZADO
+
+        estado_actual = (compra.estado_compra, compra.estado_pago)
+        destino = (estado_destino, pago_destino)
+
+        if estado_actual == destino:
+            return ResultadoCompra(aceptada=True, compra=compra)
+
+        pendiente = (EstadoCompra.PENDIENTE, EstadoPago.PENDIENTE_PASARELA)
+        if estado_actual != pendiente:
+            raise ValueError("El pago ya fue resuelto o su estado es incompatible.")
+
+        compra.estado_compra = estado_destino
+        compra.estado_pago = pago_destino
+        self._repositorio.guardar(compra)
+
+        if aprobado:
+            self._solicitar_correo_confirmacion(compra)
+
         return ResultadoCompra(aceptada=True, compra=compra)
 
     def _iniciar_pago_con_tarjeta(self, solicitud: SolicitudCompra) -> ResultadoCompra:

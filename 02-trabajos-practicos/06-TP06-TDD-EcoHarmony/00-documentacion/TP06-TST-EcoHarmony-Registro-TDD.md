@@ -922,3 +922,83 @@ $ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c17_ti
 
 All checks passed!
 ```
+
+## C19 — Correo de confirmación (20/10/2026)
+
+Responsable: Lucas Schoninger (97927).
+
+**Base previa.** Antes del test de C19, la suite completa pasó:
+
+```text
+$ python -m pytest -q
+31 passed in 0.18s
+```
+
+**Red.** Se agregó `tests/test_c19_correo_confirmacion.py`. Sus cuatro variantes
+cubren efectivo/tarjeta con envío exitoso o fallo inicial. También comprueban que
+una notificación aprobada repetida no duplica correo ni pago, que una notificación
+rechazada no confirma ni envía correo, y las precondiciones y transiciones
+incompatibles de la operación nueva. Antes de modificar producción se ejecutó:
+
+```text
+$ python -m pytest -k c19 -v --tb=short
+collected 39 items / 31 deselected / 8 selected
+7 failed, 1 passed, 31 deselected in 0.43s
+```
+
+Las variantes que necesitan resultado de tarjeta fallaron porque aún no existía
+`registrar_resultado_pago`; el envío fallido en efectivo propagó
+`ErrorServicioCorreo`. Las otras guardas fallaron por la operación inexistente.
+La variante de efectivo con correo exitoso ya pasaba.
+
+**Green.** Se incorporó el manejo específico de `ErrorServicioCorreo` y
+`registrar_resultado_pago`. La operación valida compra, forma y estado; aplica
+los estados de A02, persiste la transición antes del correo y trata notificaciones
+repetidas como idempotentes. No se implementó el reintento de C30.
+
+```text
+$ python -m pytest -k c19 -v --tb=short
+8 passed, 31 deselected in 0.39s
+$ python -m pytest -q
+39 passed in 0.25s
+```
+
+La verificación global de Ruff continúa encontrando los dos avisos `W292` y los
+dos archivos no formateados preexistentes de C05 y C06. El servicio y el test C19
+se formatearon y verificaron por separado; esos archivos ajenos al caso no se
+modificaron. C29 y C30 permanecen pendientes.
+
+## C20 — Resumen de la compra (20/10/2026)
+
+Responsable: Lucas Schoninger (97927).
+
+**Primera ejecución (Green directo).** Se agregó
+`tests/test_c20_resumen_compra.py` con cuatro variantes: pase regular/VIP por
+efectivo/tarjeta. Se verifica compra confirmada de dos entradas para D0 + 1,
+conservación de fecha, pase y forma de pago, total `Decimal("20000")` para regular
+y `Decimal("30000")` para VIP, y estado de pago acorde con A02. Las cuatro pruebas
+pasaron sin modificar código de producción:
+
+```text
+$ python -m pytest -k c20 -v --tb=short
+collected 43 items / 39 deselected / 4 selected
+4 passed, 39 deselected in 0.20s
+```
+
+Se reutilizaron `calcular_total` y `registrar_resultado_pago`, ya implementados.
+El resumen se verifica en `ResultadoCompra.compra`; esto no prueba una
+presentación visual en el navegador. C20 no añade comportamiento para C29 ni C30.
+
+**Verificación final conjunta de C19 y C20.**
+
+```text
+$ python -m pytest -q
+43 passed in 0.29s
+$ python -m ruff check ecoharmony/servicio_compras.py tests/test_c19_correo_confirmacion.py tests/test_c20_resumen_compra.py
+All checks passed!
+$ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c19_correo_confirmacion.py tests/test_c20_resumen_compra.py
+3 files already formatted
+```
+
+Los controles globales de Ruff siguen señalando únicamente los problemas
+preexistentes `W292` y de formato en los tests de C05 y C06, que no se modificaron.

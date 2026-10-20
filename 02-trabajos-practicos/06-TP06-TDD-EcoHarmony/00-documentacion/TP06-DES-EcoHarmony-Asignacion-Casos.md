@@ -24,8 +24,8 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C16 | Edades incompletas | Nicolas Steffolani (94196)      | C01 | Terminado |
 | C17 | Tipo de pase ausente | Santiago Adaime (91316)         | C01 | Terminado |
 | C18 | Cantidad ausente | Santiago Adaime (91316)                     | C01 | Terminado |
-| C19 | Correo de confirmación | Por asignar                     | C01, C02; operaciones pendientes del contrato §7 | Pendiente |
-| C20 | Resumen de la compra | Por asignar                     | C01, C08 | Pendiente |
+| C19 | Correo de confirmación | Lucas Schoninger (97927)       | C01, C02; contrato §7 | Terminado |
+| C20 | Resumen de la compra | Lucas Schoninger (97927)       | C01, C08 | Terminado |
 | C21 | Inicio del pago con tarjeta | Por asignar                     | C02 | Pendiente |
 | C22 | Efectivo sin redirección | Por asignar                     | C01 | Pendiente |
 | C23 | Rechazo sin efectos | Por asignar                     | C12 | Pendiente |
