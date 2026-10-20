@@ -587,3 +587,145 @@ $ .venv\Scripts\python -m pytest -k "c10 or c11 or c12 or c13 or c14" -q
 `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py`, y `ruff format --check .`
 informa `2 files would be reformatted, 28 files already formatted` por esos mismos
 archivos, que quedan fuera del alcance de C14.
+
+## C15 — Fecha ausente (20/10/2026)
+
+Responsable: Nicolas Steffolani (94196).
+
+**Entorno.** Entorno virtual en `01-implementacion/.venv` con Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1 en Linux. En las salidas copiadas se omiten las líneas de encabezado con rutas locales.
+
+**Base previa.** Antes de escribir el test de C15, con C14 ya integrado, la suite pasó completa:
+
+```text
+$ python -m pytest -q
+.......................                                                  [100%]
+23 passed in 0.03s
+```
+
+**Red.** Se creó `tests/test_c15_fecha_ausente.py` con el test `test_c15_rechaza_compra_sin_fecha_de_visita`, parametrizado con `FormaPago.EFECTIVO` y `FormaPago.TARJETA`. La solicitud se genera con `crear_solicitud(fecha_visita=None, forma_pago=forma_pago)`, de modo que el resto de los datos (usuario registrado, cantidad de entradas con sus edades y tipo de pase) son válidos y la ausencia de la fecha es la única causa del rechazo. El test comprueba que el resultado no sea aceptado, que el motivo sea `FECHA_AUSENTE`, que no haya compra registrada ni URL de redirección, y que no se hayan registrado compras ni realizado pedidos de pago o intentos de envío de correo.
+
+Al ejecutarlo antes de modificar producción falló en ambas variantes porque el servicio no validaba la ausencia de la fecha y procedía a confirmar la compra en efectivo o abrir la pasarela de pago con tarjeta:
+
+```text
+$ python -m pytest -k c15 -v --tb=short
+collecting ... collected 25 items / 23 deselected / 2 selected
+
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] ________
+tests/test_c15_fecha_ausente.py:34: in test_c15_rechaza_compra_sin_fecha_de_visita
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='dcd6c88ec6ad434fbada23fe446606d9', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=None, cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+________ test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] ________
+tests/test_c15_fecha_ausente.py:34: in test_c15_rechaza_compra_sin_fecha_de_visita
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='3f87a518a49c473ca662cac3f09f4768', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=None, cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/3f87a518a49c473ca662cac3f09f4768').aceptada
+=========================== short test summary info ============================
+FAILED tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO]
+FAILED tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA]
+======================= 2 failed, 23 deselected in 0.04s =======================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo`, dentro del bloque de validaciones de fecha, se agregó la guarda que comprueba si `fecha is None` y devuelve `MotivoRechazo.FECHA_AUSENTE`. Se ubica inmediatamente después de la validación del usuario y antes de evaluar fecha pasada o parque cerrado, cumpliendo con el orden establecido en el contrato (§4).
+
+```text
+$ python -m pytest -k c15 -v --tb=short
+collecting ... collected 25 items / 23 deselected / 2 selected
+
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c15_fecha_ausente.py::test_c15_rechaza_compra_sin_fecha_de_visita[FormaPago.TARJETA] PASSED [100%]
+
+======================= 2 passed, 23 deselected in 0.02s =======================
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Refactor.** Al haber garantizado que `fecha is None` corta inmediatamente y retorna `FECHA_AUSENTE`, las dos condiciones subsiguientes (`FECHA_PASADA` y `PARQUE_CERRADO`) ya no necesitan verificar defensivamente `fecha is not None and`. Se simplificaron ambas expresiones en `_motivo_de_rechazo`, mejorando la legibilidad sin alterar el comportamiento. Tras el cambio, se verificó nuevamente la suite completa:
+
+```text
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py` y `tests/test_c15_fecha_ausente.py`: `All checks passed!` y `2 files already formatted`.
+
+## C16 — Edades incompletas (20/10/2026)
+
+Responsable: Nicolas Steffolani (94196). Mismo entorno que C15 (Python 3.12.3, pytest 9.1.1, Ruff 0.17.1 en Linux).
+
+**Base previa.** Antes de comenzar C16, con C15 integrado, la suite completa pasó:
+
+```text
+$ python -m pytest -q
+.........................                                                [100%]
+25 passed in 0.04s
+```
+
+**Red.** Se creó `tests/test_c16_edades_incompletas.py` con `test_c16_rechaza_compra_con_edades_incompletas`, parametrizado con `FormaPago.EFECTIVO` y `FormaPago.TARJETA`. Siguiendo la especificación del entregable (CA01: dos entradas y edad informada para un solo visitante), se construye la solicitud mediante `crear_solicitud(cantidad_entradas=2, edades=(24,), forma_pago=forma_pago)`, dejando todos los demás campos válidos. Se comprueba que el resultado devuelva `aceptada=False`, el motivo `EDADES_INCOMPLETAS`, y la ausencia de efectos secundarios (sin compra guardada, sin iniciar pago y sin enviar correo).
+
+Al ejecutar los tests antes de modificar la lógica de producción, fallaron en ambas opciones de pago pues el servicio aceptaba la compra con una sola edad para dos entradas:
+
+```text
+$ python -m pytest -k c16 -v --tb=short
+collecting ... collected 27 items / 25 deselected / 2 selected
+
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] FAILED [ 50%]
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] FAILED [100%]
+
+=================================== FAILURES ===================================
+______ test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] ______
+tests/test_c16_edades_incompletas.py:37: in test_c16_rechaza_compra_con_edades_incompletas
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='f3142059ed5944f38e4e23f6768db1bf', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24,), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+______ test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] _______
+tests/test_c16_edades_incompletas.py:37: in test_c16_rechaza_compra_con_edades_incompletas
+    assert resultado.aceptada is False
+E   AssertionError: assert True is False
+E    +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='f6de631e0fb845ac9646a7b4a7c89a1e', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 13), cantidad_entradas=2, edades=(24,), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.TARJETA: 'TARJETA'>, total=Decimal('20000'), estado_compra=<EstadoCompra.PENDIENTE: 'PENDIENTE'>, estado_pago=<EstadoPago.PENDIENTE_PASARELA: 'PENDIENTE_PASARELA'>, estado_correo=<EstadoCorreo.NO_SOLICITADO: 'NO_SOLICITADO'>), motivo=None, url_redireccion='https://pasarela.doble/pago/f6de631e0fb845ac9646a7b4a7c89a1e').aceptada
+=========================== short test summary info ============================
+FAILED tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO]
+FAILED tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA]
+======================= 2 failed, 25 deselected in 0.04s =======================
+```
+
+**Green.** En `ServicioCompras._motivo_de_rechazo`, a continuación de la validación de la cantidad de entradas y antes de las validaciones de tipo de pase y forma de pago (respetando el orden del contrato §4), se agregó la comprobación de que la cantidad de edades informadas no sea menor a la cantidad de entradas solicitadas:
+
+```python
+if cantidad is not None and len(solicitud.edades) < cantidad:
+    return MotivoRechazo.EDADES_INCOMPLETAS
+```
+
+Se ejecutaron los tests de C16 y la suite completa:
+
+```text
+$ python -m pytest -k c16 -v --tb=short
+collecting ... collected 27 items / 25 deselected / 2 selected
+
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.EFECTIVO] PASSED [ 50%]
+tests/test_c16_edades_incompletas.py::test_c16_rechaza_compra_con_edades_incompletas[FormaPago.TARJETA] PASSED [100%]
+
+======================= 2 passed, 25 deselected in 0.02s =======================
+$ python -m pytest -q
+...........................                                              [100%]
+27 passed in 0.04s
+```
+
+**Refactor.** Se analizó el método `_motivo_de_rechazo`. Las condiciones de validación quedaron agrupadas de forma ordenada y concisa respetando el contrato §4 (usuario -> fecha -> cantidad -> edades -> forma de pago). No se requirió extraer métodos adicionales ya que cada verificación es directa de una o dos líneas. Se ejecutaron la suite completa y la totalidad de los casos de rechazo existentes:
+
+```text
+$ python -m pytest -q
+...........................                                              [100%]
+27 passed in 0.04s
+$ python -m pytest -k "c10 or c11 or c12 or c13 or c14 or c15 or c16" -q
+............                                                             [100%]
+12 passed, 15 deselected in 0.03s
+```
+
+**Verificación de Ruff.** Sobre `ecoharmony/servicio_compras.py`, `tests/test_c15_fecha_ausente.py` y `tests/test_c16_edades_incompletas.py`: `All checks passed!` y `3 files already formatted`. En el proyecto completo `ruff check .` continúa reportando únicamente los dos avisos `W292` preexistentes en `test_c05_una_entrada.py` y `test_c06_nueve_entradas.py` fuera del alcance de estos casos.

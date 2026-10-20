@@ -55,13 +55,17 @@ class ServicioCompras:
         if not solicitud.usuario.registrado:
             return MotivoRechazo.USUARIO_NO_REGISTRADO
         fecha = solicitud.fecha_visita
-        if fecha is not None and fecha < self._reloj.hoy():
+        if fecha is None:
+            return MotivoRechazo.FECHA_AUSENTE
+        if fecha < self._reloj.hoy():
             return MotivoRechazo.FECHA_PASADA
-        if fecha is not None and not self._calendario.esta_abierto(fecha):
+        if not self._calendario.esta_abierto(fecha):
             return MotivoRechazo.PARQUE_CERRADO
         cantidad = solicitud.cantidad_entradas
         if cantidad is not None and cantidad > MAXIMO_ENTRADAS:
             return MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
+        if cantidad is not None and len(solicitud.edades) < cantidad:
+            return MotivoRechazo.EDADES_INCOMPLETAS
         if solicitud.forma_pago is None:
             return MotivoRechazo.FORMA_PAGO_AUSENTE
         return None
