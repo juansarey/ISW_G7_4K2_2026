@@ -16,7 +16,7 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C08 | Pase VIP | Por asignar | C01 | Pendiente |
 | C09 | Pase regular | Máximo Samir Tabares (402064) | C01 | Terminado |
 | C10 | Fecha pasada | Máximo Samir Tabares (402064) | C01 | Terminado |
-| C11 | Parque cerrado | Por asignar | C01 | Pendiente |
+| C11 | Parque cerrado | Martina Lenta (95294) | C01 | Terminado |
 | C12 | Más de diez entradas | Por asignar | C01 | Pendiente |
 | C13 | Forma de pago ausente | Por asignar | C01 | Pendiente |
 | C14 | Usuario no registrado | Por asignar | C01 | Pendiente |

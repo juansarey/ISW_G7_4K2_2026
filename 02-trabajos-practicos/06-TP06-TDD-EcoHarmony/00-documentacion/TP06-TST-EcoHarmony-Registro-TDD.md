@@ -340,3 +340,40 @@ Would reformat: 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\t
 3 files would be reformatted, 21 files already formatted
 
 **Refactor:** La validación de fecha pasada se ubicó al inicio de `comprar` aplicando el principio de salida temprana y validación previa antes de producir efectos colaterales (DD02). No se detectaron duplicaciones ni se requirió extraer métodos auxiliares. Se aplicó el formato de código con Ruff sobre `servicio_compras.py` para cumplir con el estándar de estilo del proyecto.
+
+## C11 — Parque cerrado (19/10/2026)
+
+Responsable: Martina Lenta (95294).
+
+**Base previa.** Antes de agregar el test de C11, la suite existente pasó: `16 passed
+in 0.08s`.
+
+**Red.** Se agregó `tests/test_c11_parque_cerrado.py` con variantes en efectivo y
+tarjeta. El calendario compartido considera cerrado D0 + 2. Ambas variantes se
+ejecutaron antes de cambiar producción y fallaron porque el servicio aceptó la
+compra (`AssertionError: assert True is False`). En efectivo se registró la compra
+y se intentó enviar correo; con tarjeta se registró la compra y se inició el pago.
+
+Ejecución de C11 desde `01-implementacion`, antes del cambio de producción:
+
+```text
+platform win32 -- Python 3.10.4, pytest-9.1.1
+collected 18 items / 16 deselected / 2 selected
+test_c11_rechaza_fecha_futura_con_parque_cerrado[FormaPago.EFECTIVO] FAILED
+test_c11_rechaza_fecha_futura_con_parque_cerrado[FormaPago.TARJETA] FAILED
+2 failed, 16 deselected in 0.15s
+```
+
+**Green.** `ServicioCompras.comprar` consulta el calendario inyectado después de
+conservar la validación de fecha pasada y rechaza el día cerrado antes de registrar
+la compra o iniciar pago/correo.
+
+```text
+$ python -m pytest -k c11 -v --tb=short
+2 passed, 16 deselected in 0.04s
+$ python -m pytest -q
+18 passed in 0.07s
+```
+
+**Refactor.** No fue necesario extraer lógica: la validación queda en el flujo
+común antes de los dos caminos de pago.

@@ -32,7 +32,7 @@ especificación está en el entregable (páginas 7 a 9).
 | C08 | CA01, A03 | `tests/test_c08_pase_vip.py` | `test_c08_acepta_y_conserva_el_pase_vip` | Green directo |
 | C09 | CA01, A03 | `tests/test_c09_pase_regular.py` | `test_c09_acepta_y_conserva_el_pase_regular` | Terminado |
 | C10 | CA02 | `tests/test_c10_fecha_pasada.py` | `test_c10_rechaza_fecha_anterior_a_la_actual` | Terminado |
-| C11 | CA05 | — | — | Pendiente |
+| C11 | CA05 | `tests/test_c11_parque_cerrado.py` | `test_c11_rechaza_fecha_futura_con_parque_cerrado`, efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C12 | CA07 | — | — | Pendiente |
 | C13 | CA06 | — | — | Pendiente |
 | C14 | CA09 | — | — | Pendiente |
@@ -53,6 +53,6 @@ especificación está en el entregable (páginas 7 a 9).
 
 C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
 calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
-resultado y en la compra registrada. Ambas variantes de pago reutilizan
-`ServicioCompras` y las fixtures comunes. Los rechazos por fecha pasada (C10),
-parque cerrado (C11) y fecha ausente (C15) siguen pendientes.
+resultado y en la compra registrada. C11 verifica el rechazo de D0 + 2 con el
+calendario inyectado, en efectivo y tarjeta, sin registrar compras ni iniciar
+efectos externos. Los casos C12 y C15 siguen pendientes.

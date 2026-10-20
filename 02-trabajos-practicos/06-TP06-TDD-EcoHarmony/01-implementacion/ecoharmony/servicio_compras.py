@@ -43,6 +43,10 @@ class ServicioCompras:
             and solicitud.fecha_visita < self._reloj.hoy()
         ):
             return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.FECHA_PASADA)
+        if solicitud.fecha_visita is not None and not self._calendario.esta_abierto(
+            solicitud.fecha_visita
+        ):
+            return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.PARQUE_CERRADO)
         if solicitud.forma_pago == FormaPago.TARJETA:
             return self._iniciar_pago_con_tarjeta(solicitud)
         return self._confirmar_en_efectivo(solicitud)

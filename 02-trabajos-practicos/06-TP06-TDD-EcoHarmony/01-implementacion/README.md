@@ -20,22 +20,24 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C07 — diez entradas | Test agregado; Green directo |
 | C09 — pase regular | Test agregado; Green directo |
 | C10 — fecha pasada | Terminado (rechazo con FECHA_PASADA) |
-| C11–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C11 — parque cerrado | Terminado (2 variantes: efectivo y tarjeta) |
+| C12–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como las validaciones (C11–C18, C25–C28) todavía no se construyeron, la interfaz
+Como las validaciones (C12–C18, C25–C28) todavía no se construyeron, la interfaz
 **acepta** por ahora solicitudes que deberían rechazarse (por ejemplo, once
 entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
 escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se
-completen esos casos. Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
+completen esos casos. C11 ya rechaza una fecha cerrada mediante el calendario
+inyectado. Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-14 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
-producción; su evidencia está en el registro TDD. Los rechazos temporales y de
-apertura (C10 y C11) siguen pendientes.
+18 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+producción; C11 verifica el rechazo del parque cerrado. C12 en adelante siguen
+pendientes salvo los casos indicados como terminados en esta tabla.
 
 ## Instalación
 
@@ -81,6 +83,7 @@ tests/
   test_c04_fecha_futura.py # C04: fecha futura, efectivo y tarjeta
   test_c07_diez_entradas.py # C07: límite máximo aceptado
   test_c08_pase_vip.py      # C08: pase VIP y tarifa
+  test_c11_parque_cerrado.py # C11: rechazo del calendario cerrado
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)
