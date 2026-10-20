@@ -19,7 +19,7 @@ from ecoharmony.modelos import (
     ResultadoCompra,
     SolicitudCompra,
 )
-from ecoharmony.tarifas import calcular_total
+from ecoharmony.tarifas import MAXIMO_ENTRADAS, calcular_total
 
 
 class ServicioCompras:
@@ -47,6 +47,12 @@ class ServicioCompras:
             solicitud.fecha_visita
         ):
             return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.PARQUE_CERRADO)
+        cantidad = solicitud.cantidad_entradas
+        if cantidad is not None and cantidad > MAXIMO_ENTRADAS:
+            return ResultadoCompra(
+                aceptada=False,
+                motivo=MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO,
+            )
         if solicitud.forma_pago == FormaPago.TARJETA:
             return self._iniciar_pago_con_tarjeta(solicitud)
         return self._confirmar_en_efectivo(solicitud)

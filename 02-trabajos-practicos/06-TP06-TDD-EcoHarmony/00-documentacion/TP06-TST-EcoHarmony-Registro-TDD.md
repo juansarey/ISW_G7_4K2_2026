@@ -377,3 +377,41 @@ $ python -m pytest -q
 
 **Refactor.** No fue necesario extraer lógica: la validación queda en el flujo
 común antes de los dos caminos de pago.
+
+## C12 — Más de diez entradas (19/10/2026)
+
+Responsable: Martina Lenta (95294).
+
+**Red.** Se agregó `tests/test_c12_maximo_entradas.py` con efectivo y tarjeta.
+La solicitud contiene `MAXIMO_ENTRADAS + 1` entradas y la misma cantidad de
+edades válidas para aislar la regla de máximo. Ambas variantes se ejecutaron antes
+de cambiar producción y fallaron porque la compra fue aceptada.
+
+```text
+$ python -m pytest -k c12 -v --tb=short
+platform win32 -- Python 3.10.4, pytest-9.1.1
+collected 20 items / 18 deselected / 2 selected
+test_c12_rechaza_mas_de_diez_entradas[FormaPago.EFECTIVO] FAILED
+test_c12_rechaza_mas_de_diez_entradas[FormaPago.TARJETA] FAILED
+2 failed, 18 deselected in 0.18s
+```
+
+**Green.** `ServicioCompras.comprar` rechaza cantidades mayores que
+`MAXIMO_ENTRADAS`; diez entradas continúan permitidas. La condición se evalúa antes
+de registrar la compra o iniciar pago/correo.
+
+```text
+$ python -m pytest -k c12 -v --tb=short
+2 passed, 18 deselected in 0.05s
+$ python -m pytest -q
+20 passed in 0.07s
+```
+
+**Refactor.** Se reutilizó `MAXIMO_ENTRADAS`; no hizo falta agregar lógica auxiliar.
+
+**Verificación final de C11 y C12.** En Windows con Python 3.10.4 y pytest 9.1.1,
+la suite completa pasó (`20 passed`). Ruff 0.17.1 pasa para `servicio_compras.py`
+y los tests C11/C12. Los controles globales informan dos problemas preexistentes,
+ambos `W292` por falta de salto de línea final en `test_c05_una_entrada.py` y
+`test_c06_nueve_entradas.py`; `ruff format --check .` señala únicamente esos mismos
+dos archivos. No se modificaron porque C05/C06 están fuera del alcance.

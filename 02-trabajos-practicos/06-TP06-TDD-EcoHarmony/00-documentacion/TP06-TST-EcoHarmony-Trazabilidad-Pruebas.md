@@ -33,7 +33,7 @@ especificación está en el entregable (páginas 7 a 9).
 | C09 | CA01, A03 | `tests/test_c09_pase_regular.py` | `test_c09_acepta_y_conserva_el_pase_regular` | Terminado |
 | C10 | CA02 | `tests/test_c10_fecha_pasada.py` | `test_c10_rechaza_fecha_anterior_a_la_actual` | Terminado |
 | C11 | CA05 | `tests/test_c11_parque_cerrado.py` | `test_c11_rechaza_fecha_futura_con_parque_cerrado`, efectivo y tarjeta (2 ejecuciones) | Terminado |
-| C12 | CA07 | — | — | Pendiente |
+| C12 | CA07 | `tests/test_c12_maximo_entradas.py` | `test_c12_rechaza_mas_de_diez_entradas`, con efectivo y tarjeta (2 ejecuciones) | Terminado |
 | C13 | CA06 | — | — | Pendiente |
 | C14 | CA09 | — | — | Pendiente |
 | C15 | CA01 | — | — | Pendiente |
@@ -55,4 +55,5 @@ C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
 calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
 resultado y en la compra registrada. C11 verifica el rechazo de D0 + 2 con el
 calendario inyectado, en efectivo y tarjeta, sin registrar compras ni iniciar
-efectos externos. Los casos C12 y C15 siguen pendientes.
+efectos externos. C12 verifica el rechazo de once entradas con once edades válidas,
+en efectivo y tarjeta. C15 sigue pendiente.
