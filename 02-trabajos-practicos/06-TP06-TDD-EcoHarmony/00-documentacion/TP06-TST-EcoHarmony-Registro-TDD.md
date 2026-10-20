@@ -1002,3 +1002,85 @@ $ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c19_co
 
 Los controles globales de Ruff siguen señalando únicamente los problemas
 preexistentes `W292` y de formato en los tests de C05 y C06, que no se modificaron.
+
+## C21 — Inicio del pago con tarjeta (20/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Juan Pablo Sacco Rey (89319).
+
+**Comportamiento existente — Green directo.** Se creó
+`tests/test_c21_inicio_pago_tarjeta.py` y se comprobó el inicio exitoso del pago
+con tarjeta. La prueba verifica una única solicitud a la pasarela con el
+identificador y total correctos, la URL esperada, la compra registrada con estados
+`PENDIENTE` / `PENDIENTE_PASARELA` y la ausencia de correo antes de aprobar el
+pago. El comportamiento ya estaba implementado por C02.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo -v --tb=short -p no:cacheprovider
+collected 1 item
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo PASSED [100%]
+
+============================== 1 passed in 0.06s ==============================
+```
+
+**Red.** Se agregó
+`test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela`, configurando
+`pago.falla_al_iniciar = True`. La prueba espera un resultado rechazado con
+`ERROR_PAGO`, sin compra ni URL, con un único intento de iniciar el pago y sin
+correo. El caso no agrega reglas sobre la persistencia interna del intento.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela -v --tb=short -p no:cacheprovider
+collected 1 item
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela FAILED [100%]
+
+tests/dobles.py:43: in iniciar_pago_tarjeta
+    raise ErrorServicioPago("Fallo configurado en el doble de pago.")
+E   ecoharmony.dependencias.ErrorServicioPago: Fallo configurado en el doble de pago.
+
+============================== 1 failed in 0.11s ==============================
+```
+
+La prueba falló porque `_iniciar_pago_con_tarjeta` propagaba
+`ErrorServicioPago` y no devolvía el resultado definido por A04 y el contrato.
+
+**Green.** Se importó `ErrorServicioPago` y se capturó específicamente alrededor
+de `iniciar_pago_tarjeta`. Ante ese fallo se devuelve
+`ResultadoCompra(aceptada=False, motivo=MotivoRechazo.ERROR_PAGO)`. Se conservó
+el orden de persistencia existente y no se modificó la lógica de C02, C19 o C20.
+
+```text
+$ python -m pytest tests/test_c21_inicio_pago_tarjeta.py -v --tb=short -p no:cacheprovider
+collected 2 items
+
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_inicia_pago_una_vez_y_conserva_compra_pendiente_sin_correo PASSED [ 50%]
+tests/test_c21_inicio_pago_tarjeta.py::test_c21_rechaza_con_error_pago_si_falla_el_inicio_de_pasarela PASSED [100%]
+
+============================== 2 passed in 0.04s ==============================
+
+$ python -m pytest -q -p no:cacheprovider
+.............................................                            [100%]
+45 passed in 0.23s
+```
+
+**Refactor.** Se revisó `_iniciar_pago_con_tarjeta` y no se identificaron
+duplicaciones, nombres confusos ni una extracción que mejorara el diseño. No se
+realizaron cambios. El manejo de `ErrorServicioPago` tiene una responsabilidad
+distinta del manejo de correo y deja intacto `registrar_resultado_pago`.
+
+**Verificación de Ruff.** Se instaló Ruff 0.17.1 en el entorno virtual local
+excluido del repositorio. Los archivos de C21 pasan ambos controles:
+
+```text
+$ .\.venv\Scripts\python.exe -m ruff check --no-cache ecoharmony/servicio_compras.py tests/test_c21_inicio_pago_tarjeta.py
+All checks passed!
+
+$ .\.venv\Scripts\python.exe -m ruff format --check --no-cache ecoharmony/servicio_compras.py tests/test_c21_inicio_pago_tarjeta.py
+2 files already formatted
+```
+
+Los controles globales continúan señalando únicamente los problemas preexistentes
+de C05 y C06, que no se modificaron: dos avisos `W292` por falta de salto de línea
+final y esos mismos dos archivos como pendientes de formato.

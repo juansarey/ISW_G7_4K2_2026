@@ -5,6 +5,7 @@ from uuid import uuid4
 from ecoharmony.dependencias import (
     Calendario,
     ErrorServicioCorreo,
+    ErrorServicioPago,
     Reloj,
     RepositorioCompras,
     ServicioCorreo,
@@ -138,9 +139,16 @@ class ServicioCompras:
             solicitud, EstadoCompra.PENDIENTE, EstadoPago.PENDIENTE_PASARELA
         )
         self._repositorio.guardar(compra)
-        url_redireccion = self._servicio_pago.iniciar_pago_tarjeta(
-            compra.id_compra, compra.total
-        )
+        try:
+            url_redireccion = self._servicio_pago.iniciar_pago_tarjeta(
+                compra.id_compra, compra.total
+            )
+        except ErrorServicioPago:
+            return ResultadoCompra(
+                aceptada=False,
+                motivo=MotivoRechazo.ERROR_PAGO,
+            )
+
         return ResultadoCompra(
             aceptada=True, compra=compra, url_redireccion=url_redireccion
         )
