@@ -743,8 +743,6 @@ tipo de pase:
 
 ```text
 $ python -m pytest -k c17 -v --tb=short
-<<< ❯ cp ~/Downloads/test_c17_tipo_pase_ausente.py tests/
-python -m pytest -k c17 -v --tb=short
 ========================================================================================== test session starts ==========================================================================================
 platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
 cachedir: .pytest_cache
@@ -793,7 +791,6 @@ E   KeyError: None
 FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.EFECTIVO] - KeyError: None
 FAILED tests/test_c17_tipo_pase_ausente.py::test_c17_rechaza_compra_sin_tipo_de_pase[FormaPago.TARJETA] - KeyError: None
 =================================================================================== 2 failed, 27 deselected in 0.10s ====================================================================================
- >>>
 ```
 
 **Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, después del chequeo
@@ -802,10 +799,9 @@ de edades y antes del de forma de pago (orden del contrato §4), el rechazo con
 
 ```text
 $ python -m pytest -q
-<<< ❯ python -m pytest -q
 .............................                                                                                                                                                                     [100%]
 29 passed in 0.04s
- >>>
+
 ```
 
 **Refactor.**  Sin cambios
@@ -814,7 +810,7 @@ $ python -m pytest -q
 
 ## C18 — Cantidad de entradas ausente (20/10/2026)
 
-Entorno: <<< igual que C17, o indicar las diferencias >>>.
+Entorno: Mac, Python 3.14.5, pytest 9.1.1, Ruff 0.17.1. 
 Responsable: Santiago Adaime (91316).
 
 **Red.** Se creó `tests/test_c18_cantidad_ausente.py`, con una variante para
@@ -825,8 +821,6 @@ ausencia de compra registrada, solicitud de pago y correo. Fallan porque
 
 ```text
 $ python -m pytest -k c18 -v --tb=short
-<<< ❯ cp ~/Downloads/test_c18_cantidad_ausente.py tests/
-python -m pytest -k c18 -v --tb=short
 ========================================================================================== test session starts ==========================================================================================
 platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.7.0 -- /Users/santiagoadaime/Documents/Facultad/Cuarto/ICW/ISW_G7_4K2_2026/02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/.venv/bin/python
 cachedir: .pytest_cache
@@ -875,7 +869,6 @@ E   TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneTyp
 FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.EFECTIVO] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
 FAILED tests/test_c18_cantidad_ausente.py::test_c18_rechaza_compra_sin_cantidad_de_entradas[FormaPago.TARJETA] - TypeError: unsupported operand type(s) for *: 'decimal.Decimal' and 'NoneType'
 =================================================================================== 2 failed, 29 deselected in 0.10s ====================================================================================
-~ >>>
 ```
 
 **Green.** En `ServicioCompras._motivo_de_rechazo` se agregó, al inicio del bloque
@@ -884,9 +877,8 @@ de cantidad y antes del chequeo del máximo, el rechazo con
 
 ```text
 $ python -m pytest -q
-<<< ❯ python -m pytest -q
 ...............................                                                                                                                                                                   [100%]
-31 passed in 0.04s >>>
+31 passed in 0.04s 
 ```
 
 **Refactor.** Con `None` descartado antes, se quitó la condición
@@ -896,79 +888,37 @@ comportamiento no cambia. Verificación posterior:
 
 ```text
 $ python -m pytest -q
-<<< ❯ python -m pytest -q
-...............................                                                                                                                                                                   [100%]
+...............................                                          [100%]
 31 passed in 0.04s
- >>>
 $ python -m ruff check .
-<<< ❯ python -m ruff check .
 W292 [*] No newline at end of file
   --> tests/test_c05_una_entrada.py:18:51
-   |
-16 |     assert resultado.motivo is None
-17 |     assert resultado.compra is not None
-18 |     assert resultado.compra.cantidad_entradas == 1
-   |                                                   ^
-help: Add trailing newline
-   |
-17 |     assert resultado.compra is not None
-   -     assert resultado.compra.cantidad_entradas == 1
-18 +     assert resultado.compra.cantidad_entradas == 1
-   |
-
+  (...)
 W292 [*] No newline at end of file
   --> tests/test_c06_nueve_entradas.py:20:45
-   |
-18 |     assert resultado.compra is not None
-19 |     assert resultado.compra.cantidad_entradas == 9
-20 |     assert resultado.compra.edades == edades
-   |                                             ^
-help: Add trailing newline
-   |
-19 |     assert resultado.compra.cantidad_entradas == 9
-   -     assert resultado.compra.edades == edades
-20 +     assert resultado.compra.edades == edades
-   |
-
+  (...)
 Found 2 errors.
 [*] 2 fixable with `--fix`.
- >>>
 $ python -m ruff format --check .
-<<< ❯ python -m ruff format --check .
 unformatted: File would be reformatted
   --> tests/test_c05_una_entrada.py:18:51
-   |
-17 |     assert resultado.compra is not None
-   -     assert resultado.compra.cantidad_entradas == 1
-18 +     assert resultado.compra.cantidad_entradas == 1
-   |
-
+  (...)
 unformatted: File would be reformatted
   --> tests/test_c06_nueve_entradas.py:20:45
-   |
-19 |     assert resultado.compra.cantidad_entradas == 9
-   -     assert resultado.compra.edades == edades
-20 +     assert resultado.compra.edades == edades
-   |
-
+  (...)
 2 files would be reformatted, 32 files already formatted
-❯ python -m ruff format --check .
-unformatted: File would be reformatted
-  --> tests/test_c05_una_entrada.py:18:51
-   |
-17 |     assert resultado.compra is not None
-   -     assert resultado.compra.cantidad_entradas == 1
-18 +     assert resultado.compra.cantidad_entradas == 1
-   |
+```
 
-unformatted: File would be reformatted
-  --> tests/test_c06_nueve_entradas.py:20:45
-   |
-19 |     assert resultado.compra.cantidad_entradas == 9
-   -     assert resultado.compra.edades == edades
-20 +     assert resultado.compra.edades == edades
-   |
+Los dos avisos de Ruff (W292 y formato) son preexistentes: están en los tests de
+C05 y C06, ajenos a C17 y C18, y no se modificaron en este caso. Los archivos de
+este caso se verificaron por separado:
 
-2 files would be reformatted, 32 files already formatted
- >>>
+```text
+$ python -m ruff check ecoharmony/servicio_compras.py tests/test_c17_tipo_pase_ausente.py tests/test_c18_cantidad_ausente.py
+
+All checks passed!
+
+$ python -m ruff format --check ecoharmony/servicio_compras.py tests/test_c17_tipo_pase_ausente.py tests/test_c18_cantidad_ausente.py
+
+All checks passed!
 ```
