@@ -30,8 +30,8 @@ especificación está en el entregable (páginas 7 a 9).
 | C06 | CA07, A03 | — | — | Pendiente |
 | C07 | CA07, A03 | `tests/test_c07_diez_entradas.py` | `test_c07_acepta_el_maximo_de_diez_entradas` | Green directo |
 | C08 | CA01, A03 | `tests/test_c08_pase_vip.py` | `test_c08_acepta_y_conserva_el_pase_vip` | Green directo |
-| C09 | CA01, A03 | — | — | Pendiente |
-| C10 | CA02 | — | — | Pendiente |
+| C09 | CA01, A03 | `tests/test_c09_pase_regular.py` | `test_c09_acepta_y_conserva_el_pase_regular` | Terminado |
+| C10 | CA02 | `tests/test_c10_fecha_pasada.py` | `test_c10_rechaza_fecha_anterior_a_la_actual` | Terminado |
 | C11 | CA05 | — | — | Pendiente |
 | C12 | CA07 | — | — | Pendiente |
 | C13 | CA06 | — | — | Pendiente |

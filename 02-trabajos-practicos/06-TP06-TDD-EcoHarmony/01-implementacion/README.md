@@ -18,11 +18,12 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C04 — fecha futura con parque abierto | Terminado (2 variantes: efectivo y tarjeta) |
 | C05–C06 | Pendientes |
 | C07 — diez entradas | Test agregado; Green directo |
-| C08 — pase VIP | Test agregado; Green directo |
-| C09–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C09 — pase regular | Test agregado; Green directo |
+| C10 — fecha pasada | Terminado (rechazo con FECHA_PASADA) |
+| C11–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como las validaciones (C10–C18, C25–C28) todavía no se construyeron, la interfaz
+Como las validaciones (C11–C18, C25–C28) todavía no se construyeron, la interfaz
 **acepta** por ahora solicitudes que deberían rechazarse (por ejemplo, once
 entradas), y una solicitud con datos ausentes devuelve un error del servidor. Los
 escenarios de demostración pasarán a mostrar el rechazo correcto a medida que se

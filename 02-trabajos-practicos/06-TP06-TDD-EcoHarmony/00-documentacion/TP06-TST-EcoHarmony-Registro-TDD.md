@@ -230,3 +230,113 @@ All checks passed!
 $ python -m ruff format --check tests/test_c07_diez_entradas.py tests/test_c08_pase_vip.py
 2 files already formatted
 ```
+## C09 — pase regular (19/10/2026)
+
+maxit@DESKTOP-KGI56OT MINGW64 /t/Maxi/Maxi Facu/4to año/ISW/Repo/ISW_G7_4K2_2026 (main)      
+$ python -m pytest -k c09 -v
+=================================== test session starts ====================================
+platform win32 -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\maxit\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: T:\Maxi\Maxi Facu\4to año\ISW\Repo\ISW_G7_4K2_2026
+plugins: anyio-4.14.1, hydra-core-1.3.3, mock-3.15.1
+collected 16 items / 15 deselected / 1 selected
+
+02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/tests/test_c09_pase_regular.py::test_c09_acepta_y_conserva_el_pase_regular PASSED [100%]
+
+**Primera prueba (Green directo):** Como la tarifa de pase regular ya está resuelta, este test pasa directamente en verde.
+
+## C10 — fecha pasada (19/10/2026)
+$ python -m pytest -k c10 -v
+=================================== test session starts ====================================
+platform win32 -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\maxit\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: T:\Maxi\Maxi Facu\4to año\ISW\Repo\ISW_G7_4K2_2026
+plugins: anyio-4.14.1, hydra-core-1.3.3, mock-3.15.1
+collected 16 items / 15 deselected / 1 selected
+
+02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/tests/test_c10_fecha_pasada.py::test_c10_rechaza_fecha_anterior_a_la_actual FAILED [100%]
+
+========================================= FAILURES ========================================= 
+_______________________ test_c10_rechaza_fecha_anterior_a_la_actual ________________________ 
+
+servicio_compras = <ecoharmony.servicio_compras.ServicioCompras object at 0x00000267EFC40830>crear_solicitud = <function crear_solicitud.<locals>._crear at 0x00000267EFC3BF60>
+fecha_actual = datetime.date(2030, 6, 12)
+calendario = <tests.dobles.CalendarioDoble object at 0x00000267EFC402F0>
+
+    def test_c10_rechaza_fecha_anterior_a_la_actual(
+        servicio_compras, crear_solicitud, fecha_actual, calendario
+    ):
+        fecha_pasada = fecha_actual - timedelta(days=1)
+        assert calendario.esta_abierto(fecha_pasada) is True
+
+        solicitud = crear_solicitud(fecha_visita=fecha_pasada)
+
+        resultado = servicio_compras.comprar(solicitud)
+
+>       assert resultado.aceptada is False
+E       AssertionError: assert True is False
+E        +  where True = ResultadoCompra(aceptada=True, compra=Compra(id_compra='b5723616589d4167a155a0381d6419b8', usuario=Usuario(nombre_usuario='visitante01', correo='visitante@example.com', registrado=True), fecha_visita=datetime.date(2030, 6, 11), cantidad_entradas=2, edades=(24, 36), tipo_pase=<TipoPase.REGULAR: 'REGULAR'>, forma_pago=<FormaPago.EFECTIVO: 'EFECTIVO'>, total=Decimal('20000'), estado_compra=<EstadoCompra.CONFIRMADA: 'CONFIRMADA'>, estado_pago=<EstadoPago.PENDIENTE_BOLETERIA: 'PENDIENTE_BOLETERIA'>, estado_correo=<EstadoCorreo.ENVIADO: 'ENVIADO'>), motivo=None, url_redireccion=None).aceptada
+
+02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\tests\test_c10_fecha_pasada.py:22: AssertionError
+================================= short test summary info ================================== 
+FAILED 02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/tests/test_c10_fecha_pasada.py::test_c10_rechaza_fecha_anterior_a_la_actual - AssertionError: assert True is False  
+============================= 1 failed, 15 deselected in 0.28s =============================
+
+**Red**: falla porque el servicio todavía no valida la fecha contra el error. 
+
+**Validación:** se agrega la validación de la fecha en el `servicio_compras.py`:
+if (
+            solicitud.fecha_visita is not None
+            and solicitud.fecha_visita < self._reloj.hoy()
+        ):
+            return ResultadoCompra(
+                aceptada=False, motivo=MotivoRechazo.FECHA_PASADA
+            )
+
+**Test:**
+maxit@DESKTOP-KGI56OT MINGW64 /t/Maxi/Maxi Facu/4to año/ISW/Repo/ISW_G7_4K2_2026 (main)      
+$ python -m pytest -k c10 -v
+=================================== test session starts ====================================
+platform win32 -- Python 3.13.7, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\maxit\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: T:\Maxi\Maxi Facu\4to año\ISW\Repo\ISW_G7_4K2_2026
+plugins: anyio-4.14.1, hydra-core-1.3.3, mock-3.15.1
+collected 16 items / 15 deselected / 1 selected
+
+02-trabajos-practicos/06-TP06-TDD-EcoHarmony/01-implementacion/tests/test_c10_fecha_pasada.py::test_c10_rechaza_fecha_anterior_a_la_actual PASSED [100%]
+
+**Green (verde):** El test pasa correctamente.
+
+maxit@DESKTOP-KGI56OT MINGW64 /t/Maxi/Maxi Facu/4to año/ISW/Repo/ISW_G7_4K2_2026 (main)      
+$ python -m ruff check .
+W292 [*] No newline at end of file
+  --> 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\tests\test_c05_una_entrada.py:18:51
+   |
+16 |     assert resultado.motivo is None
+17 |     assert resultado.compra is not None
+18 |     assert resultado.compra.cantidad_entradas == 1
+   |                                                   ^
+   |
+help: Add trailing newline
+
+W292 [*] No newline at end of file
+  --> 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\tests\test_c06_nueve_entradas.py:20:45
+   |
+18 |     assert resultado.compra is not None
+19 |     assert resultado.compra.cantidad_entradas == 9
+20 |     assert resultado.compra.edades == edades
+   |                                             ^
+   |
+help: Add trailing newline
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.
+
+maxit@DESKTOP-KGI56OT MINGW64 /t/Maxi/Maxi Facu/4to año/ISW/Repo/ISW_G7_4K2_2026 (main)      
+$ python -m ruff format --check .
+Would reformat: 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\ecoharmony\servicio_compras.py
+Would reformat: 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\tests\test_c05_una_entrada.py
+Would reformat: 02-trabajos-practicos\06-TP06-TDD-EcoHarmony\01-implementacion\tests\test_c06_nueve_entradas.py
+3 files would be reformatted, 21 files already formatted
+
+**Refactor:** La validación de fecha pasada se ubicó al inicio de `comprar` aplicando el principio de salida temprana y validación previa antes de producir efectos colaterales (DD02). No se detectaron duplicaciones ni se requirió extraer métodos auxiliares. Se aplicó el formato de código con Ruff sobre `servicio_compras.py` para cumplir con el estándar de estilo del proyecto.

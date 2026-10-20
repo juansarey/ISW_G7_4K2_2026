@@ -15,6 +15,7 @@ from ecoharmony.modelos import (
     EstadoCorreo,
     EstadoPago,
     FormaPago,
+    MotivoRechazo,
     ResultadoCompra,
     SolicitudCompra,
 )
@@ -37,6 +38,11 @@ class ServicioCompras:
         self._repositorio = repositorio
 
     def comprar(self, solicitud: SolicitudCompra) -> ResultadoCompra:
+        if (
+            solicitud.fecha_visita is not None
+            and solicitud.fecha_visita < self._reloj.hoy()
+        ):
+            return ResultadoCompra(aceptada=False, motivo=MotivoRechazo.FECHA_PASADA)
         if solicitud.forma_pago == FormaPago.TARJETA:
             return self._iniciar_pago_con_tarjeta(solicitud)
         return self._confirmar_en_efectivo(solicitud)

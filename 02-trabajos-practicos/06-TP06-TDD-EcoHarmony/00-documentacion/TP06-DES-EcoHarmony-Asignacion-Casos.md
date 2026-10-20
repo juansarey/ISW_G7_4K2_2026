@@ -14,8 +14,8 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C06 | Nueve entradas | Por asignar | C01 | Pendiente |
 | C07 | Diez entradas | Por asignar | C01 | Pendiente |
 | C08 | Pase VIP | Por asignar | C01 | Pendiente |
-| C09 | Pase regular | Por asignar | C01 | Pendiente |
-| C10 | Fecha pasada | Por asignar | C01 | Pendiente |
+| C09 | Pase regular | Máximo Samir Tabares (402064) | C01 | Terminado |
+| C10 | Fecha pasada | Máximo Samir Tabares (402064) | C01 | Terminado |
 | C11 | Parque cerrado | Por asignar | C01 | Pendiente |
 | C12 | Más de diez entradas | Por asignar | C01 | Pendiente |
 | C13 | Forma de pago ausente | Por asignar | C01 | Pendiente |
