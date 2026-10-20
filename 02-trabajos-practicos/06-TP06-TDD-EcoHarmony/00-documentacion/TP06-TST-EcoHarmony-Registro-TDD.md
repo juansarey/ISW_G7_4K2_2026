@@ -1084,3 +1084,59 @@ $ .\.venv\Scripts\python.exe -m ruff format --check --no-cache ecoharmony/servic
 Los controles globales continúan señalando únicamente los problemas preexistentes
 de C05 y C06, que no se modificaron: dos avisos `W292` por falta de salto de línea
 final y esos mismos dos archivos como pendientes de formato.
+
+## C22 — Efectivo sin redirección (20/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Juan Pablo Sacco Rey (89319).
+
+**Primera ejecución — Green directo.** Se creó
+`tests/test_c22_efectivo_sin_redireccion.py` con una prueba parametrizada en dos
+variantes: servicio de pago disponible y servicio configurado para fallar. En
+ambas se verifica que la compra en efectivo sea aceptada y confirmada, que el pago
+quede `PENDIENTE_BOLETERIA`, que no exista URL de redirección ni solicitud a la
+pasarela, que la compra quede registrada una sola vez y que se solicite un único
+correo de confirmación.
+
+```text
+$ python -m pytest tests/test_c22_efectivo_sin_redireccion.py -v --tb=short -p no:cacheprovider
+collected 2 items
+
+tests/test_c22_efectivo_sin_redireccion.py::test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir[pago_disponible] PASSED [ 50%]
+tests/test_c22_efectivo_sin_redireccion.py::test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir[pago_configurado_para_fallar] PASSED [100%]
+
+============================== 2 passed in 0.03s ==============================
+```
+
+No hubo una etapa Red porque el flujo de efectivo ya estaba implementado por C01
+y el tratamiento del correo había sido completado por C19. Conforme a la regla 8,
+no se provocó un fallo artificial y no fue necesario modificar código de
+producción.
+
+**Verificación de la suite.** Con las dos variantes de C22, la suite completa pasó:
+
+```text
+$ python -m pytest -q -p no:cacheprovider
+...............................................                          [100%]
+47 passed in 0.28s
+```
+
+**Refactor.** La parametrización evita duplicar la misma preparación y las mismas
+aserciones para las dos configuraciones del servicio de pago. El nombre describe
+el comportamiento observable y las verificaciones corresponden al contrato. No se
+identificaron mejoras necesarias y no se realizaron cambios.
+
+**Verificación de Ruff.** El archivo de C22 pasa ambos controles:
+
+```text
+$ .\.venv\Scripts\python.exe -m ruff check --no-cache tests/test_c22_efectivo_sin_redireccion.py
+All checks passed!
+
+$ .\.venv\Scripts\python.exe -m ruff format --check --no-cache tests/test_c22_efectivo_sin_redireccion.py
+1 file already formatted
+```
+
+Los controles globales continúan señalando únicamente los problemas preexistentes
+de C05 y C06, que no se modificaron: dos avisos `W292` por falta de salto de línea
+final y esos mismos dos archivos como pendientes de formato. Los otros 36 archivos
+ya están formateados.

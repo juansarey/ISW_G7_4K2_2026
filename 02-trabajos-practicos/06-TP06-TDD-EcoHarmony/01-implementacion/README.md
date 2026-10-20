@@ -30,10 +30,11 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C19 — correo de confirmación | Terminado (8 tests; éxito, fallo y estados de pago) |
 | C20 — resumen de la compra | Terminado (4 variantes; efectivo/tarjeta y pase regular/VIP) |
 | C21 — inicio del pago con tarjeta | Terminado (2 pruebas; inicio exitoso y fallo de pasarela) |
-| C22–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C22 — efectivo sin redirección | Green directo (2 variantes del servicio de pago) |
+| C23–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como otras validaciones (C22–C28) todavía no se construyeron, la interfaz puede
+Como otras validaciones (C23–C28) todavía no se construyeron, la interfaz puede
 aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
 el calendario inyectado, C12 rechaza más de diez entradas, C13 rechaza la compra
 cuando no se eligió forma de pago, C14 la rechaza si el visitante no está
@@ -43,14 +44,15 @@ de cada visitante, siempre antes de registrar nada. Las validaciones se reúnen 
 compra y el pago si falla el correo y procesa el resultado de tarjeta según A02.
 C20 verifica el resumen de dos entradas para D0 + 1 y las tarifas de ambos pases.
 C21 convierte el fallo al iniciar la pasarela en un resultado `ERROR_PAGO` sin
-compra ni URL en el resultado. C22–C28 continúan pendientes.
+compra ni URL en el resultado. C22 verifica que el efectivo no invoque la pasarela
+ni produzca una URL de redirección. C23–C28 continúan pendientes.
 Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-45 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+47 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
 producción; C11 y C12 tienen pruebas por efectivo y tarjeta. Los demás casos siguen
 pendientes salvo los indicados como terminados en esta tabla.
 
@@ -107,6 +109,7 @@ tests/
   test_c19_correo_confirmacion.py # C19: correo tras confirmar compra
   test_c20_resumen_compra.py # C20: resumen de cantidad, fecha, pase, total y pago
   test_c21_inicio_pago_tarjeta.py # C21: inicio exitoso y fallo de pasarela
+  test_c22_efectivo_sin_redireccion.py # C22: efectivo sin invocar la pasarela
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)

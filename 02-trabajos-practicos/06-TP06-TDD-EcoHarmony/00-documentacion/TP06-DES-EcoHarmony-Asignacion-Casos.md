@@ -27,7 +27,7 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C19 | Correo de confirmación | Lucas Schoninger (97927)       | C01, C02; contrato §7 | Terminado |
 | C20 | Resumen de la compra | Lucas Schoninger (97927)       | C01, C08 | Terminado |
 | C21 | Inicio del pago con tarjeta | Juan Pablo Sacco Rey (89319)   | C02 | Terminado |
-| C22 | Efectivo sin redirección | Por asignar                     | C01 | Pendiente |
+| C22 | Efectivo sin redirección | Juan Pablo Sacco Rey (89319)   | C01 | Terminado |
 | C23 | Rechazo sin efectos | Por asignar                     | C12 | Pendiente |
 | C24 | Redirección no acredita pago | Por asignar                     | C02 | Pendiente |
 | C25 | Cantidad no entera positiva (DG01) | Por asignar                     | C18; `ecoharmony/entrada.py` | Pendiente |
