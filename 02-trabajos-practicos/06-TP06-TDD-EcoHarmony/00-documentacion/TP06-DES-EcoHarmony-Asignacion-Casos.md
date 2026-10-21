@@ -28,9 +28,9 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C20 | Resumen de la compra | Lucas Schoninger (97927)       | C01, C08 | Terminado |
 | C21 | Inicio del pago con tarjeta | Juan Pablo Sacco Rey (89319)   | C02 | Terminado |
 | C22 | Efectivo sin redirección | Juan Pablo Sacco Rey (89319)   | C01 | Terminado |
-| C23 | Rechazo sin efectos | Por asignar                     | C12 | Pendiente |
-| C24 | Redirección no acredita pago | Por asignar                     | C02 | Pendiente |
-| C25 | Cantidad no entera positiva (DG01) | Por asignar                     | C18; `ecoharmony/entrada.py` | Implementado; responsable no informado |
-| C26 | Opción no admitida (DG02) | Por asignar                     | `ecoharmony/entrada.py` | Implementado; responsable no informado |
+| C23 | Rechazo sin efectos | Facundo Montes (406511)                     | C12 | Terminado |
+| C24 | Redirección no acredita pago | Facundo Montes (406511)                     | C02 | Terminado |
+| C25 | Cantidad no entera positiva (DG01) | Máximo Rossa (400034)                     | C18; `ecoharmony/entrada.py` | Terminado |
+| C26 | Opción no admitida (DG02) | Máximo Rossa (400034)                     | `ecoharmony/entrada.py` | Terminado |
 | C27 | Fecha con formato inválido (DG03) | Por asignar                     | `ecoharmony/entrada.py` | Pendiente |
 | C28 | Edad inválida (DG04) | Por asignar                     | C16; `ecoharmony/entrada.py` | Pendiente |
