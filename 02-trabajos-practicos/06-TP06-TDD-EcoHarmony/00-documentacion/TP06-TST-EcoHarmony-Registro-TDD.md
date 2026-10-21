@@ -1280,3 +1280,34 @@ collected 49 items / 48 deselected / 1 selected
 All checks passed!
 
 ```
+
+## C25 y C26 - Cantidad y opciones inválidas (21/10/2026)
+
+Responsable: no informado.
+
+**RED.** Se agregaron pruebas para cantidades cero y negativa, cantidad no entera,
+tipo de pase fuera de las opciones y forma de pago no admitida. La ejecución focalizada
+falló como se esperaba: `5 failed`; el servicio aceptaba cantidades no positivas y
+la API no devolvía los motivos específicos para los formatos inválidos.
+
+**GREEN.** Se rechazaron cantidades no positivas en `ServicioCompras` y se agregó un
+error de entrada con motivo estable para cantidades no enteras y opciones no admitidas.
+La API devuelve el motivo y el mensaje del contrato sin crear una compra.
+Resultado focalizado:
+
+```text
+py -3 -m pytest -q tests\test_c25_cantidad_invalida.py tests\test_c26_opcion_invalida.py
+5 passed in 0.79s
+```
+
+Suite completa:
+
+```text
+py -3 -m pytest -q
+54 passed in 1.13s
+```
+
+Ruff pasó para los seis archivos Python cambiados (`ruff check`: All checks passed;
+`ruff format --check`: 6 files already formatted). La comprobación global encontró
+dos problemas preexistentes de fin de línea en `test_c05_una_entrada.py` y
+`test_c06_nueve_entradas.py`; no se modificaron porque son ajenos a C25/C26.

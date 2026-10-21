@@ -30,7 +30,7 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C22 | Efectivo sin redirección | Juan Pablo Sacco Rey (89319)   | C01 | Terminado |
 | C23 | Rechazo sin efectos | Por asignar                     | C12 | Pendiente |
 | C24 | Redirección no acredita pago | Por asignar                     | C02 | Pendiente |
-| C25 | Cantidad no entera positiva (DG01) | Por asignar                     | C18; `ecoharmony/entrada.py` | Pendiente |
-| C26 | Opción no admitida (DG02) | Por asignar                     | `ecoharmony/entrada.py` | Pendiente |
+| C25 | Cantidad no entera positiva (DG01) | Por asignar                     | C18; `ecoharmony/entrada.py` | Implementado; responsable no informado |
+| C26 | Opción no admitida (DG02) | Por asignar                     | `ecoharmony/entrada.py` | Implementado; responsable no informado |
 | C27 | Fecha con formato inválido (DG03) | Por asignar                     | `ecoharmony/entrada.py` | Pendiente |
 | C28 | Edad inválida (DG04) | Por asignar                     | C16; `ecoharmony/entrada.py` | Pendiente |

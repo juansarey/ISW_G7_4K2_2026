@@ -11,7 +11,7 @@ from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 
-from ecoharmony.entrada import convertir_solicitud
+from ecoharmony.entrada import ErrorEntrada, convertir_solicitud
 from ecoharmony.modelos import Compra, ResultadoCompra, TipoPase, Usuario
 from ecoharmony.servicio_compras import ServicioCompras
 from ecoharmony.simulados import (
@@ -91,6 +91,17 @@ def crear_app(fecha_actual: date = FECHA_DEMOSTRACION) -> Flask:
             return jsonify(error="Usuario simulado desconocido."), 400
         try:
             solicitud = convertir_solicitud(datos, usuario)
+        except ErrorEntrada as error:
+            return (
+                jsonify(
+                    aceptada=False,
+                    motivo=error.motivo.value,
+                    mensaje=MENSAJES_RECHAZO[error.motivo],
+                    url_redireccion=None,
+                    compra=None,
+                ),
+                400,
+            )
         except ValueError:
             return jsonify(
                 aceptada=False, motivo=None, mensaje=MENSAJE_FORMATO_INVALIDO

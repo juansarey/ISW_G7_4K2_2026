@@ -1,9 +1,9 @@
 """Límite de entrada: convierte los datos de la interfaz en tipos del dominio.
 
 Un valor vacío o ausente se convierte en ``None`` (o se omite, en las edades) para
-que la lógica de compra pueda rechazarlo con su motivo. Por ahora, un formato que
-no puede convertirse lanza el ``ValueError`` de la conversión de Python; los casos
-C25–C28 (DG01–DG04) deben reemplazarlo por motivos estables del contrato.
+que la lógica de compra pueda rechazarlo con su motivo. Las cantidades no enteras
+y las opciones no admitidas producen ``ErrorEntrada`` con motivos estables; los
+formatos de fecha y edad todavía propagan ``ValueError``.
 """
 
 from collections.abc import Mapping
@@ -11,9 +11,21 @@ from datetime import date
 from enum import Enum
 from typing import TypeVar
 
-from ecoharmony.modelos import FormaPago, SolicitudCompra, TipoPase, Usuario
+from ecoharmony.modelos import (
+    FormaPago,
+    MotivoRechazo,
+    SolicitudCompra,
+    TipoPase,
+    Usuario,
+)
 
 Opcion = TypeVar("Opcion", bound=Enum)
+
+
+class ErrorEntrada(ValueError):
+    def __init__(self, motivo: MotivoRechazo) -> None:
+        self.motivo = motivo
+        super().__init__(motivo.value)
 
 
 def convertir_solicitud(
@@ -44,7 +56,12 @@ def _convertir_fecha(valor: object) -> date | None:
 def _convertir_entero(valor: object) -> int | None:
     # Se convierte desde texto para que "2.5" no se trunque silenciosamente a 2.
     texto = _texto_o_none(valor)
-    return None if texto is None else int(texto)
+    if texto is None:
+        return None
+    try:
+        return int(texto)
+    except ValueError as error:
+        raise ErrorEntrada(MotivoRechazo.CANTIDAD_INVALIDA) from error
 
 
 def _convertir_edades(valor: object) -> tuple[int, ...]:
@@ -56,4 +73,14 @@ def _convertir_edades(valor: object) -> tuple[int, ...]:
 
 def _convertir_opcion(tipo_opcion: type[Opcion], valor: object) -> Opcion | None:
     texto = _texto_o_none(valor)
-    return None if texto is None else tipo_opcion(texto)
+    if texto is None:
+        return None
+    try:
+        return tipo_opcion(texto)
+    except ValueError as error:
+        motivo = (
+            MotivoRechazo.TIPO_PASE_INVALIDO
+            if tipo_opcion is TipoPase
+            else MotivoRechazo.FORMA_PAGO_INVALIDA
+        )
+        raise ErrorEntrada(motivo) from error

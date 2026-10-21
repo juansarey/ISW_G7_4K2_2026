@@ -31,11 +31,14 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C20 — resumen de la compra | Terminado (4 variantes; efectivo/tarjeta y pase regular/VIP) |
 | C21 — inicio del pago con tarjeta | Terminado (2 pruebas; inicio exitoso y fallo de pasarela) |
 | C22 — efectivo sin redirección | Green directo (2 variantes del servicio de pago) |
-| C23–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C23–C24 | Pendientes |
+| C25 — cantidad inválida (DG01) | Terminado (cero, negativa y no entera) |
+| C26 — opción no admitida (DG02) | Terminado (pase o forma de pago inválidos) |
+| C27–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como otras validaciones (C23–C28) todavía no se construyeron, la interfaz puede
-aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
+Como otras validaciones (C23–C24 y C27–C28) todavía no se construyeron, la interfaz
+puede aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
 el calendario inyectado, C12 rechaza más de diez entradas, C13 rechaza la compra
 cuando no se eligió forma de pago, C14 la rechaza si el visitante no está
 registrado, C15 si la fecha de visita está ausente y C16 si no se informa la edad
@@ -45,14 +48,16 @@ compra y el pago si falla el correo y procesa el resultado de tarjeta según A02
 C20 verifica el resumen de dos entradas para D0 + 1 y las tarifas de ambos pases.
 C21 convierte el fallo al iniciar la pasarela en un resultado `ERROR_PAGO` sin
 compra ni URL en el resultado. C22 verifica que el efectivo no invoque la pasarela
-ni produzca una URL de redirección. C23–C28 continúan pendientes.
+ni produzca una URL de redirección. C25 y C26 rechazan datos inválidos en el
+límite de entrada con motivos estables del contrato. C23–C24 y C27–C28 continúan
+pendientes.
 Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
 C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conservan
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-47 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+54 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
 producción; C11 y C12 tienen pruebas por efectivo y tarjeta. Los demás casos siguen
 pendientes salvo los indicados como terminados en esta tabla.
 
@@ -110,6 +115,8 @@ tests/
   test_c20_resumen_compra.py # C20: resumen de cantidad, fecha, pase, total y pago
   test_c21_inicio_pago_tarjeta.py # C21: inicio exitoso y fallo de pasarela
   test_c22_efectivo_sin_redireccion.py # C22: efectivo sin invocar la pasarela
+  test_c25_cantidad_invalida.py # C25: rechaza cantidades inválidas
+  test_c26_opcion_invalida.py # C26: rechaza opciones no admitidas
 ```
 
 La documentación (contrato, asignación, trazabilidad, registro TDD y acuerdos)

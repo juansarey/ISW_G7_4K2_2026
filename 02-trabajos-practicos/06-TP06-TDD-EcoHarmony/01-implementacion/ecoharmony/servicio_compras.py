@@ -66,6 +66,8 @@ class ServicioCompras:
         cantidad = solicitud.cantidad_entradas
         if cantidad is None:
             return MotivoRechazo.CANTIDAD_AUSENTE
+        if cantidad <= 0:
+            return MotivoRechazo.CANTIDAD_INVALIDA
         if cantidad > MAXIMO_ENTRADAS:
             return MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
         if len(solicitud.edades) < cantidad:

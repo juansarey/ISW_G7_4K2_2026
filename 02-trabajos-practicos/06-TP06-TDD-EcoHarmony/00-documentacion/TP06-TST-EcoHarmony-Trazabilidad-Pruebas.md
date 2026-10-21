@@ -46,8 +46,8 @@ especificación está en el entregable (páginas 7 a 9).
 | C22 | CA06, DD05 | `tests/test_c22_efectivo_sin_redireccion.py` | `test_c22_confirma_efectivo_sin_invocar_pasarela_ni_redirigir`, con pago disponible y configurado para fallar (2 ejecuciones) | Green directo |
 | C23 | DD02 | — | — | Pendiente |
 | C24 | DD05, A02 | — | — | Pendiente |
-| C25 | DG01 | — | — | Pendiente |
-| C26 | DG02 | — | — | Pendiente |
+| C25 | DG01 | `tests/test_c25_cantidad_invalida.py` | `test_c25_rechaza_cantidad_no_positiva_sin_efectos` (cero/negativa); `test_c25_rechaza_cantidad_no_entera_en_el_limite_de_entrada` | Implementado |
+| C26 | DG02 | `tests/test_c26_opcion_invalida.py` | `test_c26_rechaza_opcion_no_admitida` (tipo de pase/forma de pago, un campo por ejecución) | Implementado |
 | C27 | DG03 | — | — | Pendiente |
 | C28 | DG04 | — | — | Pendiente |
 
@@ -64,4 +64,8 @@ verifica en efectivo y tarjeta el rechazo con `USUARIO_NO_REGISTRADO` sin ningú
 efecto. C15 deja la fecha de visita sin indicar y comprueba el rechazo con
 `FECHA_AUSENTE` en efectivo y tarjeta sin ningún efecto secundario. C16 usa dos
 entradas y una sola edad informada para verificar el rechazo con `EDADES_INCOMPLETAS`
-en ambas formas de pago. C05, C06 y C17 a C28 siguen pendientes.
+en ambas formas de pago. C25 rechaza cantidades cero y negativas en el servicio,
+y convierte una cantidad no entera en `CANTIDAD_INVALIDA` en el límite de entrada.
+C26 devuelve `TIPO_PASE_INVALIDO` o `FORMA_PAGO_INVALIDA` según la única opción
+inválida enviada, antes de registrar la compra o iniciar efectos externos. C05,
+C06, C23, C24, C27 y C28 siguen pendientes.
