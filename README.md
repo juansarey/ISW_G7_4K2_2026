@@ -1,6 +1,6 @@
 # Gestión de Configuración del Software - ISW G7 4K2 2026
 
-> **Fecha de creación:** 23/08/2026 | **Última actualización:** 19/10/2026
+> **Fecha de creación:** 23/08/2026 | **Última actualización:** 22/10/2026
 >
 > **Materia:** Ingeniería y Calidad de Software
 >
@@ -64,17 +64,21 @@ ISW_G7_4K2_2026/
 ├── 02-trabajos-practicos/
 │   ├── ENU-TP-Evaluables-<anio>-<cuatrimestre>C.pdf
 │   ├── <NN>-TP<N>-<NOMBRE_TP>/
-│   └── 06-TP06-TDD-EcoHarmony/
-│       ├── 00-documentacion/
-│       │   ├── TP06-DES-EcoHarmony-Diseno-y-Pruebas.pdf
-│       │   └── TP06-DES-EcoHarmony-Reglas-Codificacion.md
-│       └── 01-implementacion/
+│   ├── 06-TP06-TDD-EcoHarmony/
+│   │   ├── 00-documentacion/
+│   │   │   ├── TP06-DES-EcoHarmony-Diseno-y-Pruebas.pdf
+│   │   │   └── TP06-DES-EcoHarmony-Reglas-Codificacion.md
+│   │   └── 01-implementacion/
+│   └── 09-TP09-Testing-EcoHarmony/
+│       └── 00-documentacion/
 └── 03-trabajo-investigacion-grupal/
 ```
 
 Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este README y el TP5 evalúa el uso y evolución de este repositorio.
 
 En el TP6, `00-documentacion/` reúne el entregable de diseño y pruebas, las reglas de codificación y los demás documentos del trabajo. `01-implementacion/` se reserva para el código fuente, las pruebas automatizadas y su configuración; inicialmente se conserva en Git mediante un archivo `.gitkeep`.
+
+En el TP9, `00-documentacion/` reúne el diseño de pruebas de caja negra: clases de equivalencia, análisis de valores límite y casos de prueba. El TP9 no incluye implementación; el directorio se conserva inicialmente en Git mediante un archivo `.gitkeep`.
 
 > [!NOTE]
 > `<N>` representa el número secuencial del trabajo práctico (ejemplo: `01` ).
