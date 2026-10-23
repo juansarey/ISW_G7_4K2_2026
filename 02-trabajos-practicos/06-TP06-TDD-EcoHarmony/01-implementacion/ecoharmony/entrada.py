@@ -1,9 +1,9 @@
 """Límite de entrada: convierte los datos de la interfaz en tipos del dominio.
 
 Un valor vacío o ausente se convierte en ``None`` (o se omite, en las edades) para
-que la lógica de compra pueda rechazarlo con su motivo. Las cantidades no enteras
-y las opciones no admitidas producen ``ErrorEntrada`` con motivos estables; los
-formatos de fecha y edad todavía propagan ``ValueError``.
+que la lógica de compra pueda rechazarlo con su motivo. Las cantidades no enteras,
+las fechas con formato inválido, las edades no enteras y las opciones no admitidas
+producen ``ErrorEntrada`` con motivos estables del contrato.
 """
 
 from collections.abc import Mapping
@@ -50,7 +50,12 @@ def _texto_o_none(valor: object) -> str | None:
 
 def _convertir_fecha(valor: object) -> date | None:
     texto = _texto_o_none(valor)
-    return None if texto is None else date.fromisoformat(texto)
+    if texto is None:
+        return None
+    try:
+        return date.fromisoformat(texto)
+    except ValueError as error:
+        raise ErrorEntrada(MotivoRechazo.FECHA_FORMATO_INVALIDO) from error
 
 
 def _convertir_entero(valor: object) -> int | None:
@@ -67,8 +72,16 @@ def _convertir_entero(valor: object) -> int | None:
 def _convertir_edades(valor: object) -> tuple[int, ...]:
     if not isinstance(valor, list | tuple):
         return ()
-    textos = (_texto_o_none(edad) for edad in valor)
-    return tuple(int(texto) for texto in textos if texto is not None)
+    edades: list[int] = []
+    for elemento in valor:
+        texto = _texto_o_none(elemento)
+        if texto is None:
+            continue
+        try:
+            edades.append(int(texto))
+        except ValueError as error:
+            raise ErrorEntrada(MotivoRechazo.EDAD_INVALIDA) from error
+    return tuple(edades)
 
 
 def _convertir_opcion(tipo_opcion: type[Opcion], valor: object) -> Opcion | None:

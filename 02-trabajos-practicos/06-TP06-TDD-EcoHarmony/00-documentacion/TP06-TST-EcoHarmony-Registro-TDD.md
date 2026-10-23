@@ -1311,3 +1311,109 @@ Ruff pasó para los seis archivos Python cambiados (`ruff check`: All checks pas
 `ruff format --check`: 6 files already formatted). La comprobación global encontró
 dos problemas preexistentes de fin de línea en `test_c05_una_entrada.py` y
 `test_c06_nueve_entradas.py`; no se modificaron porque son ajenos a C25/C26.
+
+## C27 — Fecha con formato inválido (23/10/2026)
+
+Entorno: Windows 11, Python 3.13.13, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Emanuel Tejeda (401000).
+
+**RED.** Se creó `tests/test_c27_fecha_formato_invalido.py` para verificar que fechas con formatos que no pueden convertirse a fecha (como `"no-es-una-fecha"`, `"2030/06/13"`, `"13-06-2030"` o `"2030-02-31"`) sean rechazadas en el límite de entrada con `ErrorEntrada(MotivoRechazo.FECHA_FORMATO_INVALIDO)` y que la API HTTP devuelva estado 400 con `aceptada=False` y el motivo correspondiente. La ejecución falló porque `_convertir_fecha` propagaba un `ValueError` sin capturar:
+
+```text
+$ python -m pytest tests/test_c27_fecha_formato_invalido.py -v
+============================= test session starts =============================
+collected 5 items
+
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[no-es-una-fecha] FAILED [ 20%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[2030/06/13] FAILED [ 40%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[13-06-2030] FAILED [ 60%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[2030-02-31] FAILED [ 80%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_fecha_formato_invalido_en_api FAILED [100%]
+
+============================== 5 failed in 0.25s ==============================
+```
+
+**GREEN.** En `ecoharmony/entrada.py` se modificó `_convertir_fecha` para capturar `ValueError` de `date.fromisoformat` y lanzar `ErrorEntrada(MotivoRechazo.FECHA_FORMATO_INVALIDO)`. Con esto, tanto la conversión directa como la API manejan adecuadamente el rechazo.
+
+```text
+$ python -m pytest tests/test_c27_fecha_formato_invalido.py -v
+============================= test session starts =============================
+collected 5 items
+
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[no-es-una-fecha] PASSED [ 20%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[2030/06/13] PASSED [ 40%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[13-06-2030] PASSED [ 60%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada[2030-02-31] PASSED [ 80%]
+tests/test_c27_fecha_formato_invalido.py::test_c27_rechaza_fecha_formato_invalido_en_api PASSED [100%]
+
+============================== 5 passed in 0.17s ==============================
+```
+
+**REFACTOR.** Se comprobó la suite completa (59 passed) y se verificó el cumplimiento de estilo con Ruff (`ruff check` y `ruff format --check`).
+
+## C28 — Edad inválida (23/10/2026)
+
+Entorno: Windows 11, Python 3.13.13, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Emanuel Tejeda (401000).
+
+**RED.** Se creó `tests/test_c28_edad_invalida.py` con pruebas para:
+1. Edades negativas (rechazadas en el servicio con `MotivoRechazo.EDAD_INVALIDA` sin compra ni efectos).
+2. Edades no enteras como `"25.5"` o `"veinte"` (rechazadas en el límite de entrada con `ErrorEntrada(MotivoRechazo.EDAD_INVALIDA)` y en la API con status 400).
+3. Aceptación de edades frontera (edad 0 y edad 105, confirmando que no se imponen límites máximos arbitrarios de edad ni descuentos según DG04).
+
+La ejecución inicial falló con 5 errores:
+
+```text
+$ python -m pytest tests/test_c28_edad_invalida.py -v
+============================= test session starts =============================
+collected 6 items
+
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_negativa_en_servicio_sin_efectos[edades0] FAILED [ 16%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_negativa_en_servicio_sin_efectos[edades1] FAILED [ 33%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_limite_de_entrada[25.5] FAILED [ 50%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_limite_de_entrada[veinte] FAILED [ 66%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_api FAILED [ 83%]
+tests/test_c28_edad_invalida.py::test_c28_acepta_edad_cero_y_edad_avanzada_sin_limite_ni_descuento PASSED [100%]
+
+========================= 5 failed, 1 passed in 0.24s =========================
+```
+
+**GREEN.**
+1. En `ecoharmony/entrada.py`: Se adaptó `_convertir_edades` para iterar y convertir cada edad mediante `int(texto)` dentro de un bloque `try/except ValueError`, levantando `ErrorEntrada(MotivoRechazo.EDAD_INVALIDA)` ante entradas no enteras.
+2. En `ecoharmony/servicio_compras.py`: En `_motivo_de_rechazo`, inmediatamente después de validar la completitud de las edades, se agregó la verificación `if any(edad < 0 for edad in solicitud.edades): return MotivoRechazo.EDAD_INVALIDA`.
+
+La ejecución de C28 pasó en su totalidad:
+
+```text
+$ python -m pytest tests/test_c28_edad_invalida.py -v
+============================= test session starts =============================
+collected 6 items
+
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_negativa_en_servicio_sin_efectos[edades0] PASSED [ 16%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_negativa_en_servicio_sin_efectos[edades1] PASSED [ 33%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_limite_de_entrada[25.5] PASSED [ 50%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_limite_de_entrada[veinte] PASSED [ 66%]
+tests/test_c28_edad_invalida.py::test_c28_rechaza_edad_no_entera_en_api PASSED [ 83%]
+tests/test_c28_edad_invalida.py::test_c28_acepta_edad_cero_y_edad_avanzada_sin_limite_ni_descuento PASSED [100%]
+
+============================== 6 passed in 0.32s ==============================
+```
+
+**REFACTOR Y VERIFICACIÓN GLOBAL.**
+Se ejecutó la suite completa de pruebas:
+
+```text
+$ python -m pytest -q
+.................................................................        [100%]
+65 passed in 0.28s
+```
+
+Verificación con Ruff para todos los archivos involucrados:
+
+```text
+$ python -m ruff check ecoharmony/entrada.py ecoharmony/servicio_compras.py tests/test_c27_fecha_formato_invalido.py tests/test_c28_edad_invalida.py
+All checks passed!
+
+$ python -m ruff format --check ecoharmony/entrada.py ecoharmony/servicio_compras.py tests/test_c27_fecha_formato_invalido.py tests/test_c28_edad_invalida.py
+4 files already formatted
+```

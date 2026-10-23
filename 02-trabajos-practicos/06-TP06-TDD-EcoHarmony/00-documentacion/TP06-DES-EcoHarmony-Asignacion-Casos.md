@@ -32,5 +32,5 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C24 | Redirección no acredita pago | Facundo Montes (406511)                     | C02 | Terminado |
 | C25 | Cantidad no entera positiva (DG01) | Máximo Rossa (400034)                     | C18; `ecoharmony/entrada.py` | Terminado |
 | C26 | Opción no admitida (DG02) | Máximo Rossa (400034)                     | `ecoharmony/entrada.py` | Terminado |
-| C27 | Fecha con formato inválido (DG03) | Por asignar                     | `ecoharmony/entrada.py` | Pendiente |
-| C28 | Edad inválida (DG04) | Por asignar                     | C16; `ecoharmony/entrada.py` | Pendiente |
+| C27 | Fecha con formato inválido (DG03) | Emanuel Tejeda (401000)         | `ecoharmony/entrada.py` | Terminado |
+| C28 | Edad inválida (DG04) | Emanuel Tejeda (401000)         | C16; `ecoharmony/entrada.py` | Terminado |

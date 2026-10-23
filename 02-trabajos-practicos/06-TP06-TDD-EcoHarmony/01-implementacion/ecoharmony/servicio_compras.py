@@ -72,6 +72,8 @@ class ServicioCompras:
             return MotivoRechazo.CANTIDAD_EXCEDE_MAXIMO
         if len(solicitud.edades) < cantidad:
             return MotivoRechazo.EDADES_INCOMPLETAS
+        if any(edad < 0 for edad in solicitud.edades):
+            return MotivoRechazo.EDAD_INVALIDA
         if solicitud.tipo_pase is None:
             return MotivoRechazo.TIPO_PASE_AUSENTE
         if solicitud.forma_pago is None:

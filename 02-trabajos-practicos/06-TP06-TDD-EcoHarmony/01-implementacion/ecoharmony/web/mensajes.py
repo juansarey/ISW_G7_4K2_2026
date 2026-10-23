@@ -28,10 +28,7 @@ MENSAJES_RECHAZO: dict[MotivoRechazo, str] = {
     ),
 }
 
-MENSAJE_FORMATO_INVALIDO = (
-    "Algún dato tiene un formato que no se puede interpretar. "
-    "La validación de formatos de fecha y edad está pendiente (casos C27–C28)."
-)
+MENSAJE_FORMATO_INVALIDO = "Algún dato tiene un formato que no se puede interpretar."
 
 MENSAJE_ERROR_INTERNO = (
     "El servidor no pudo procesar la solicitud. Puede tratarse de un caso cuya "

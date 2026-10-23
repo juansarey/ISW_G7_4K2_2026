@@ -34,10 +34,12 @@ conducido por pruebas (pytest) y una interfaz web de demostración (Flask).
 | C23–C24 | Pendientes |
 | C25 — cantidad inválida (DG01) | Terminado (cero, negativa y no entera) |
 | C26 — opción no admitida (DG02) | Terminado (pase o forma de pago inválidos) |
-| C27–C28 | Pendientes (especificados en el entregable, páginas 7 a 9) |
+| C27 — fecha con formato inválido (DG03) | Terminado (rechazo en límite de entrada y API) |
+| C28 — edad inválida (DG04) | Terminado (edad negativa en servicio y no entera en entrada) |
+| C29–C30 | Pendientes (especificados en el entregable, páginas 7 a 9) |
 | Interfaz web | Lista; verificada manualmente |
 
-Como otras validaciones (C23–C24 y C27–C28) todavía no se construyeron, la interfaz
+Como otras validaciones todavía no se construyeron, la interfaz
 puede aceptar solicitudes que deberían rechazarse. C11 rechaza fechas cerradas usando
 el calendario inyectado, C12 rechaza más de diez entradas, C13 rechaza la compra
 cuando no se eligió forma de pago, C14 la rechaza si el visitante no está
@@ -49,7 +51,8 @@ C20 verifica el resumen de dos entradas para D0 + 1 y las tarifas de ambos pases
 C21 convierte el fallo al iniciar la pasarela en un resultado `ERROR_PAGO` sin
 compra ni URL en el resultado. C22 verifica que el efectivo no invoque la pasarela
 ni produzca una URL de redirección. C25 y C26 rechazan datos inválidos en el
-límite de entrada con motivos estables del contrato. C23–C24 y C27–C28 continúan
+límite de entrada con motivos estables del contrato. C27 rechaza fechas con
+formato inválido y C28 rechaza edades no enteras y negativas. C29 y C30 continúan
 pendientes.
 Ver `../00-documentacion/TP06-DES-EcoHarmony-Asignacion-Casos.md`.
 
@@ -57,7 +60,7 @@ C03 y C04 verifican la aceptación de D0 y D0 + 1 con el parque abierto y conser
 la fecha en el resultado y en el registro. Sus cuatro variantes pasaron desde la
 primera ejecución con la lógica existente; la evidencia está en
 `../00-documentacion/TP06-TST-EcoHarmony-Registro-TDD.md`. La suite actual contiene
-54 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
+65 pruebas. C07 y C08 también pasan desde la primera ejecución, sin cambios en
 producción; C11 y C12 tienen pruebas por efectivo y tarjeta. Los demás casos siguen
 pendientes salvo los indicados como terminados en esta tabla.
 

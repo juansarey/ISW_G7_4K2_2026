@@ -48,8 +48,8 @@ especificación está en el entregable (páginas 7 a 9).
 | C24 | DD05, A02 | — | — | Pendiente |
 | C25 | DG01 | `tests/test_c25_cantidad_invalida.py` | `test_c25_rechaza_cantidad_no_positiva_sin_efectos` (cero/negativa); `test_c25_rechaza_cantidad_no_entera_en_el_limite_de_entrada` | Implementado |
 | C26 | DG02 | `tests/test_c26_opcion_invalida.py` | `test_c26_rechaza_opcion_no_admitida` (tipo de pase/forma de pago, un campo por ejecución) | Implementado |
-| C27 | DG03 | — | — | Pendiente |
-| C28 | DG04 | — | — | Pendiente |
+| C27 | DG03 | `tests/test_c27_fecha_formato_invalido.py` | `test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada` (4 variantes); `test_c27_rechaza_fecha_formato_invalido_en_api` | Terminado |
+| C28 | DG04 | `tests/test_c28_edad_invalida.py` | `test_c28_rechaza_edad_negativa_en_servicio_sin_efectos` (2 variantes); `test_c28_rechaza_edad_no_entera_en_limite_de_entrada` (2 variantes); `test_c28_rechaza_edad_no_entera_en_api`; `test_c28_acepta_edad_cero_y_edad_avanzada_sin_limite_ni_descuento` | Terminado |
 
 C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
 calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
@@ -67,5 +67,8 @@ entradas y una sola edad informada para verificar el rechazo con `EDADES_INCOMPL
 en ambas formas de pago. C25 rechaza cantidades cero y negativas en el servicio,
 y convierte una cantidad no entera en `CANTIDAD_INVALIDA` en el límite de entrada.
 C26 devuelve `TIPO_PASE_INVALIDO` o `FORMA_PAGO_INVALIDA` según la única opción
-inválida enviada, antes de registrar la compra o iniciar efectos externos. C05,
-C06, C23, C24, C27 y C28 siguen pendientes.
+inválida enviada, antes de registrar la compra o iniciar efectos externos. C27
+rechaza formatos de fecha inválidos en el límite de entrada y en la API devolviendo
+`FECHA_FORMATO_INVALIDO`. C28 rechaza edades negativas en el servicio sin efectos
+secundarios y edades no enteras en el límite de entrada devolviendo `EDAD_INVALIDA`.
+C29 y C30 quedan pendientes.
