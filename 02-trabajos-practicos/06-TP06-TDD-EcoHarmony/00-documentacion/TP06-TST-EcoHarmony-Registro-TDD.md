@@ -1449,3 +1449,59 @@ se modificó código de producción para C29.
 **REFACTOR.** No se requirieron cambios adicionales en el flujo existente. El test
 verifica también que el estado final queda en el repositorio y no se genera otro
 efecto de correo.
+
+## C30 — Reintento del correo pendiente (26/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Octavio Grillo (94788).
+
+**RED.** Se agregó `tests/test_c30_reintento_correo.py`: inicia una compra con
+tarjeta, simula el fallo del primer correo tras la aprobación y comprueba el
+reintento exitoso sin duplicar compra ni pago. La prueba falló porque el método
+contratado todavía no existía:
+
+```text
+$ python -m pytest -k c30 -v
+E       AttributeError: 'ServicioCompras' object has no attribute 'reintentar_correo'
+====================== 1 failed, 66 deselected in 0.37s =======================
+```
+
+**GREEN.** Se implementó `ServicioCompras.reintentar_correo`: busca la compra,
+rechaza con `ValueError` si no existe o el correo no está pendiente, y usa el
+envío ya existente para cambiar el estado a `ENVIADO` o conservar
+`CORREO_PENDIENTE` si vuelve a fallar. No se repiten ni la compra ni el pago.
+
+```text
+$ python -m pytest -k c30 -v
+tests/test_c30_reintento_correo.py::test_c30_reintenta_correo_pendiente_sin_repetir_compra_ni_pago PASSED [100%]
+====================== 1 passed, 66 deselected in 0.28s =======================
+```
+
+**REFACTOR.** Se reutilizó `_solicitar_correo_confirmacion` para conservar el
+manejo del fallo y el guardado en un solo lugar. Se actualizó el contrato y la
+trazabilidad de C30.
+
+**VERIFICACIÓN.** La suite completa pasó y Ruff no informó problemas en los tres
+archivos Python modificados:
+
+```text
+$ python -m pytest -q
+...................................................................      [100%]
+67 passed in 0.45s
+$ python -m ruff check ecoharmony\servicio_compras.py tests\test_c29_pago_rechazado.py tests\test_c30_reintento_correo.py
+All checks passed!
+$ python -m ruff format --check ecoharmony\servicio_compras.py tests\test_c29_pago_rechazado.py tests\test_c30_reintento_correo.py
+3 files already formatted
+```
+
+Las verificaciones globales de Ruff siguen señalando únicamente dos problemas
+preexistentes fuera de este cambio: falta de salto de línea y formato en
+`tests/test_c05_una_entrada.py` y `tests/test_c06_nueve_entradas.py`. No se
+modificaron esos archivos.
+
+```text
+$ python -m ruff check .
+Found 2 errors.
+$ python -m ruff format --check .
+2 files would be reformatted, 44 files already formatted
+```

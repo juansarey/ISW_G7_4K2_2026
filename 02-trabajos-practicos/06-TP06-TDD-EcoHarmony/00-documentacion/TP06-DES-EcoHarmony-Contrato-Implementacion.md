@@ -165,7 +165,11 @@ explícita corresponde a C30. Un rechazo/cancelación deja la compra
 `CANCELADA` y el pago `RECHAZADO`, sin solicitar correo (A02; C29 mantiene sus
 pruebas propias).
 
-`reintentar_correo` sigue pendiente y se definirá en C30.
+`reintentar_correo` solo acepta una compra existente con estado de correo
+`CORREO_PENDIENTE`. Si el identificador no existe o el correo no está pendiente,
+produce `ValueError`. El reintento solicita únicamente el correo y devuelve la
+compra; si vuelve a fallar, conserva `CORREO_PENDIENTE`, y si tiene éxito lo cambia
+a `ENVIADO`. No inicia otro pago ni crea otra compra (C30).
 
 ## 8. API web
 

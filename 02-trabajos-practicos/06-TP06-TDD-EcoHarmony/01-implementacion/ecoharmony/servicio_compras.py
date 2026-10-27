@@ -137,6 +137,17 @@ class ServicioCompras:
 
         return ResultadoCompra(aceptada=True, compra=compra)
 
+    def reintentar_correo(self, id_compra: str) -> ResultadoCompra:
+        """Reenvía la confirmación solo cuando quedó pendiente (A04)."""
+        compra = self._repositorio.obtener(id_compra)
+        if compra is None:
+            raise ValueError("Compra inexistente.")
+        if compra.estado_correo != EstadoCorreo.CORREO_PENDIENTE:
+            raise ValueError("El correo no está pendiente de reintento.")
+
+        self._solicitar_correo_confirmacion(compra)
+        return ResultadoCompra(aceptada=True, compra=compra)
+
     def _iniciar_pago_con_tarjeta(self, solicitud: SolicitudCompra) -> ResultadoCompra:
         """A02 y DD05: abrir la pasarela no acredita el pago; todo queda pendiente."""
         compra = self._crear_compra(
