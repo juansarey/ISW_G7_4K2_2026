@@ -1417,3 +1417,35 @@ All checks passed!
 $ python -m ruff format --check ecoharmony/entrada.py ecoharmony/servicio_compras.py tests/test_c27_fecha_formato_invalido.py tests/test_c28_edad_invalida.py
 4 files already formatted
 ```
+
+## C29 — Rechazo del pago con tarjeta (26/10/2026)
+
+Entorno: Windows, Python 3.12.3, pytest 9.1.1 y Ruff 0.17.1.
+Responsable: Octavio Grillo (94788).
+
+**Preparación.** Antes de iniciar los casos, la suite existente pasó:
+
+```text
+$ python -m pytest -q
+.................................................................        [100%]
+65 passed in 0.56s
+```
+
+**RED / GREEN directo.** Se agregó
+`tests/test_c29_pago_rechazado.py` para iniciar una compra con tarjeta y procesar
+el rechazo de la pasarela. Comprueba los estados `CANCELADA` y `RECHAZADO`, la
+ausencia de correo y la persistencia de los estados. La primera ejecución pasó:
+
+```text
+$ python -m pytest -k c29 -v
+tests/test_c29_pago_rechazado.py::test_c29_rechaza_pago_y_conserva_estados_sin_correo PASSED [100%]
+====================== 1 passed, 65 deselected in 0.30s =======================
+```
+
+El comportamiento ya estaba implementado en
+`ServicioCompras.registrar_resultado_pago`; no se provocó un fallo artificial ni
+se modificó código de producción para C29.
+
+**REFACTOR.** No se requirieron cambios adicionales en el flujo existente. El test
+verifica también que el estado final queda en el repositorio y no se genera otro
+efecto de correo.

@@ -34,3 +34,5 @@ suite, respetan Ruff y tienen trazabilidad y evidencia en `TP06-TST-EcoHarmony-R
 | C26 | Opción no admitida (DG02) | Máximo Rossa (400034)                     | `ecoharmony/entrada.py` | Terminado |
 | C27 | Fecha con formato inválido (DG03) | Emanuel Tejeda (401000)         | `ecoharmony/entrada.py` | Terminado |
 | C28 | Edad inválida (DG04) | Emanuel Tejeda (401000)         | C16; `ecoharmony/entrada.py` | Terminado |
+| C29 | Rechazo del pago con tarjeta | Octavio Grillo (94788) | C21 | Terminado |
+| C30 | Reintento de correo pendiente | Octavio Grillo (94788) | C19 | En progreso |

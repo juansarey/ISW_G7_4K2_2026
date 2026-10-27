@@ -11,7 +11,7 @@ especificación está en el entregable (páginas 7 a 9).
 | CA01 | Fecha, cantidad, edad de cada visitante y tipo de pase | C01, C02, C08, C09, C15, C16, C17, C18 |
 | CA02 | Fecha actual o futura | C03, C04, C10 |
 | CA03 | Correo de confirmación | C19 |
-| CA04 | Redirigir a Mercado Pago con tarjeta | C02, C21 |
+| CA04 | Redirigir a Mercado Pago con tarjeta | C02, C21, C29 |
 | CA05 | Día de apertura del parque | C03, C04, C11 |
 | CA06 | Efectivo en boletería o tarjeta | C01, C02, C13, C22 |
 | CA07 | No más de diez entradas | C05, C06, C07, C12 |
@@ -50,6 +50,7 @@ especificación está en el entregable (páginas 7 a 9).
 | C26 | DG02 | `tests/test_c26_opcion_invalida.py` | `test_c26_rechaza_opcion_no_admitida` (tipo de pase/forma de pago, un campo por ejecución) | Implementado |
 | C27 | DG03 | `tests/test_c27_fecha_formato_invalido.py` | `test_c27_rechaza_formato_fecha_invalido_en_limite_de_entrada` (4 variantes); `test_c27_rechaza_fecha_formato_invalido_en_api` | Terminado |
 | C28 | DG04 | `tests/test_c28_edad_invalida.py` | `test_c28_rechaza_edad_negativa_en_servicio_sin_efectos` (2 variantes); `test_c28_rechaza_edad_no_entera_en_limite_de_entrada` (2 variantes); `test_c28_rechaza_edad_no_entera_en_api`; `test_c28_acepta_edad_cero_y_edad_avanzada_sin_limite_ni_descuento` | Terminado |
+| C29 | A02, DD05 | `tests/test_c29_pago_rechazado.py` | `test_c29_rechaza_pago_y_conserva_estados_sin_correo` | Terminado |
 
 C03 y C04 comprueban que D0 y D0 + 1, respectivamente, están abiertos en el
 calendario preparado, que la solicitud se acepta y que la fecha se conserva en el
@@ -71,4 +72,5 @@ inválida enviada, antes de registrar la compra o iniciar efectos externos. C27
 rechaza formatos de fecha inválidos en el límite de entrada y en la API devolviendo
 `FECHA_FORMATO_INVALIDO`. C28 rechaza edades negativas en el servicio sin efectos
 secundarios y edades no enteras en el límite de entrada devolviendo `EDAD_INVALIDA`.
-C29 y C30 quedan pendientes.
+C29 verifica que el rechazo de la pasarela cancele la compra, deje el pago
+rechazado y no solicite correo.
