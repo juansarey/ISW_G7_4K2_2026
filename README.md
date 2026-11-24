@@ -1,6 +1,6 @@
 # Gestión de Configuración del Software - ISW G7 4K2 2026
 
-> **Fecha de creación:** 23/08/2026 | **Última actualización:** 19/10/2026
+> **Fecha de creación:** 23/08/2026 | **Última actualización:** 24/11/2026
 >
 > **Materia:** Ingeniería y Calidad de Software
 >
@@ -62,19 +62,19 @@ ISW_G7_4K2_2026/
 │   │   └── <NN>-<TEMA>/
 │   └── 02-notas-clase/
 ├── 02-trabajos-practicos/
-│   ├── ENU-TP-Evaluables-<anio>-<cuatrimestre>C.pdf
-│   ├── <NN>-TP<N>-<NOMBRE_TP>/
-│   └── 06-TP06-TDD-EcoHarmony/
+│   └── <NN>-TP<N>-<NOMBRE_TP>/
 │       ├── 00-documentacion/
-│       │   ├── TP06-DES-EcoHarmony-Diseno-y-Pruebas.pdf
-│       │   └── TP06-DES-EcoHarmony-Reglas-Codificacion.md
 │       └── 01-implementacion/
 └── 03-trabajo-investigacion-grupal/
 ```
 
 Los TP4 y TP5 no tienen directorio propio: el TP4 se representa mediante este README y el TP5 evalúa el uso y evolución de este repositorio.
 
-En el TP6, `00-documentacion/` reúne el entregable de diseño y pruebas, las reglas de codificación y los demás documentos del trabajo. `01-implementacion/` se reserva para el código fuente, las pruebas automatizadas y su configuración; inicialmente se conserva en Git mediante un archivo `.gitkeep`.
+La estructura muestra únicamente directorios. Los nombres de los archivos se definen en la sección "Convenciones de nombrado".
+
+Los subdirectorios `00-documentacion/` y `01-implementacion/` solo se crean en los trabajos prácticos que incluyen código (por ejemplo, el TP6): `00-documentacion/` reúne los documentos del trabajo y `01-implementacion/` el código fuente, las pruebas automatizadas y su configuración. En el resto de los trabajos prácticos, los archivos se ubican directamente en el directorio del TP.
+
+La guía conjunta de enunciados de trabajos prácticos evaluables (`ENU`) se ubica en la raíz de `02-trabajos-practicos/`, porque abarca a todos los TP.
 
 > [!NOTE]
 > `<N>` representa el número secuencial del trabajo práctico (ejemplo: `01` ).
@@ -144,21 +144,30 @@ Los nombres de directorios siguen el formato `<numero>-<descripcion>`. Para los 
 
 Se considera Ítem de Configuración (IC) a todo elemento relevante para la materia, que forme parte de una actividad, que pueda actualizarse o que necesite conservarse, identificarse y recuperarse posteriormente. No se incorporan archivos temporales, copias duplicadas ni apuntes personales.
 
-| Código | Tipo de IC                      |
-| ------ | ------------------------------- |
-| `REG`  | Reglas de la materia            |
-| `MAT`  | Material teórico                |
-| `ENU`  | Guía trabajos prácticos evaluables |
-| `REQ`  | Requerimientos                  |
-| `SRC`  | Código fuente                   |
-| `AUT`  | Pruebas automatizadas           |
-| `DES`  | Documentación de diseño         |
-| `TST`  | Documentación de testing        |
-| `SCR`  | Artefactos Scrum                |
-| `RET`  | Retrospectiva                   |
-| `KAN`  | Artefactos Kanban               |
-| `DT`   | Design Thinking                 |
-| `INV`  | Trabajo de investigación grupal |
+### Tipificación de los ítems de configuración
+
+Cada ítem de configuración se tipifica según su alcance:
+
+- **Producto:** forma parte del software o de la especificación que se construye (requerimientos, diseño, código y pruebas).
+- **Proyecto:** es común a todo el cursado y no depende de un trabajo práctico en particular (reglas, material teórico, documentación SCM, trabajos de investigación).
+- **Iteración:** se genera en cada trabajo práctico o Sprint y documenta esa iteración (artefactos Scrum, Kanban, retrospectiva, Design Thinking).
+
+| Código | Ítem de configuración                  | Tipo de ítem | Regla de nombrado                                 | Ubicación                                         |
+| ------ | -------------------------------------- | ------------ | ------------------------------------------------- | ------------------------------------------------- |
+| —      | Documento SCM del repositorio          | Proyecto     | `README.md`                                       | Raíz del repositorio                              |
+| `REG`  | Reglas de la materia                   | Proyecto     | `REG-<descripcion>.<extension>`                   | `00-reglas-materia/`                              |
+| `MAT`  | Material teórico                       | Proyecto     | `MAT-U<numero>-<tema>-<descripcion>.<extension>`  | `01-material-teorico/<subdirectorio>/`            |
+| `ENU`  | Guía de trabajos prácticos evaluables  | Proyecto     | `ENU-TP-Evaluables-<anio>-<cuatrimestre>C.<extension>` | `02-trabajos-practicos/`                     |
+| `REQ`  | Requerimientos                         | Producto     | `TP<numero>-REQ-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/<NN>-TP<N>-<NOMBRE_TP>/` |
+| `DES`  | Documentación de diseño                | Producto     | `TP<numero>-DES-<dominio>-<descripcion>.<extension>` | `<NN>-TP<N>-<NOMBRE_TP>/00-documentacion/`     |
+| `TST`  | Documentación de testing               | Producto     | `TP<numero>-TST-<dominio>-<descripcion>.<extension>` | `<NN>-TP<N>-<NOMBRE_TP>/00-documentacion/`     |
+| `SRC`  | Código fuente                          | Producto     | Según las reglas de codificación del TP           | `<NN>-TP<N>-<NOMBRE_TP>/01-implementacion/`       |
+| `AUT`  | Pruebas automatizadas                  | Producto     | Según las reglas de codificación del TP           | `<NN>-TP<N>-<NOMBRE_TP>/01-implementacion/tests/` |
+| `SCR`  | Artefactos Scrum                       | Iteración    | `TP<numero>-SCR-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/<NN>-TP<N>-<NOMBRE_TP>/` |
+| `KAN`  | Artefactos Kanban                      | Iteración    | `TP<numero>-KAN-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/<NN>-TP<N>-<NOMBRE_TP>/` |
+| `RET`  | Retrospectiva                          | Iteración    | `TP<numero>-RET-<dominio>-<descripcion>.<extension>` | `02-trabajos-practicos/<NN>-TP<N>-<NOMBRE_TP>/` |
+| `DT`   | Design Thinking                        | Iteración    | `TP<numero>-DT-<dominio>-<descripcion>.<extension>`  | `02-trabajos-practicos/<NN>-TP<N>-<NOMBRE_TP>/` |
+| `INV`  | Trabajo de investigación grupal        | Proyecto     | `INV-<descripcion>.<extension>`                   | `03-trabajo-investigacion-grupal/`                |
 
 ---
 
@@ -188,3 +197,11 @@ La documentación SCM vigente define que Git administra el historial y las versi
 Se establecerá una línea base luego de la corrección de cada trabajo práctico evaluable. En ese momento, los ítems de configuración asociados al trabajo práctico deberán encontrarse completos, revisados y estables. Se adopta este criterio porque la corrección posterior a la evaluación representa un estado validado del trabajo y constituye un hito significativo en la evolución del repositorio.
 
 Las líneas base se implementan mediante tags de Git con el formato `LB-<numero>-<descripcion>`, donde el numero es correlativo de dos digitos. La primera linea base prevista es `LB-01-Configuracion-Inicial`, una vez aprobadas la estructura inicial, la documentacion SCM y los CIs disponibles.
+
+### Registro de líneas base
+
+| LB | Tag | Fecha | Hito | Ítems de configuración principales |
+| -- | --- | ----- | ---- | ---------------------------------- |
+| 01 | `LB-01-Configuracion-Inicial` | 28/10/2026 | Estructura del repositorio y documentación SCM aprobadas | README, REG, MAT, TP01-REQ, TP02-REQ |
+| 02 | `LB-02-TP6-Comprar-Entradas` | 28/10/2026 | TP6 corregido en clase | TP06-DES, TP06-TST, código y pruebas automatizadas C01–C30 |
+| 03 | `LB-03-TP07-Scrum` | 23/11/2026 | TP7 Scrum realizado y corregido en clase | TP07-SCR-Parque-Diversiones-Informe |
